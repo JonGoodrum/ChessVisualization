@@ -1,4 +1,4 @@
-package com.grapedrink.chessmap.gui;
+package com.grapedrink.chessmap.gui.controlpanel;
 
 import javax.swing.JPanel;
 

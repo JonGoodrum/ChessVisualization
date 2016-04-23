@@ -25,7 +25,8 @@ public class NewGameButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			userInterfaceFactory.getChessBoardPanel().setPiece("bK", "e5");
+			userInterfaceFactory.getChessMapLogicEngine().setNewGame();
+            userInterfaceFactory.getChessBoardPanel().setBoard(userInterfaceFactory.getChessMapLogicEngine().getBoard());
 		}
 	}
 }

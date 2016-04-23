@@ -1,10 +1,8 @@
 package com.grapedrink.chessmap.gui.board;
 
-import java.awt.event.MouseAdapter;
-
 import javax.swing.JButton;
 
-import com.grapedrink.chessmap.gui.GuiConstants;
+import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
 import com.grapedrink.chessmap.ui.io.PieceDragListener;
 
 @SuppressWarnings("serial")

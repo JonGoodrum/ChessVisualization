@@ -1,9 +1,10 @@
-package com.grapedrink.chessmap.gui;
+package com.grapedrink.chessmap.gui.mainwindow;
 
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
+import com.grapedrink.chessmap.gui.controlpanel.ControlPanel;
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 
 @SuppressWarnings("serial")

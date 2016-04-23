@@ -5,8 +5,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import com.grapedrink.chessmap.gui.GuiConstants;
-import com.grapedrink.chessmap.gui.board.ChessBoardPanel;
+import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 
 public class IconHelper {

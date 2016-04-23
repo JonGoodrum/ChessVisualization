@@ -2,10 +2,9 @@ package com.grapedrink.chessmap.gui.board;
 
 import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import com.grapedrink.chessmap.gui.GuiConstants;
+import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
 import com.grapedrink.chessmap.gui.icons.IconHelper;
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 import com.grapedrink.chessmap.ui.io.PieceDragListener;

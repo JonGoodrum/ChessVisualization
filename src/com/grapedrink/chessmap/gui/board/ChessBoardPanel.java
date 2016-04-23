@@ -1,7 +1,6 @@
 package com.grapedrink.chessmap.gui.board;
 
 import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class ChessBoardPanel extends JPanel {
 		}
 	}
 	
-	public void setPiece(String pieceCode, String position) {
+	public void setPiece(String position, String pieceCode) {
 		board.get(position).setIcon(icons.get(pieceCode));
 		super.revalidate();
 	}
@@ -61,6 +60,43 @@ public class ChessBoardPanel extends JPanel {
 		board.get(destSquare).setIcon(srcIcon);
 		board.get(srcSquare).setIcon(null);
 		super.revalidate();
+	}
+	
+	/**
+	 * Loads a board into the game.
+	 * 
+	 * Example: a Map<String, String> containing:
+	 * <"e2", "wK">
+	 * <"c3", "bK">
+	 * <"d2", "bP">
+	 * 
+	 * ...would load a black pawn onto d2,
+	 * a black king onto c3, and a white king
+	 * onto e2
+	 * 
+	 * @param squaresAndPieces map
+	 */
+	public void setBoard(Map<String, String> squaresAndPieces) {
+		this.resetBoard();
+		for (String square : squaresAndPieces.keySet()) {
+			setPiece(square, squaresAndPieces.get(square));
+		}
+	}
+	
+	public void resetBoard() {
+		for (String square : board.keySet()) {
+			setPiece(square, null);
+		}
+	}
+
+	/**
+	 * Loads an opening into the game.  Program
+	 * searches Wikipedia for this particular opening,
+	 * and loads the search result (if any) onto the board.
+	 * 
+	 * @param positionName ex: Ruy Lopez
+	 */
+	public void loadBoard(String positionName) {
 	}
 	
 	public void rotateBoard() {

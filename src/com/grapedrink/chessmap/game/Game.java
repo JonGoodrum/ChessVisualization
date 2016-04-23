@@ -1,4 +1,4 @@
-package com.grapedrink.chessmap.gui;
+package com.grapedrink.chessmap.game;
 
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 
@@ -10,8 +10,8 @@ public class Game {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @SuppressWarnings("unused")
 			public void run() {
-            	UserInterfaceFactory inputListener = new UserInterfaceFactory();
-                MainWindow window = new MainWindow(inputListener);
+            	ChessMapLogicEngine logic = null;
+            	UserInterfaceFactory inputListener = new UserInterfaceFactory(logic);
             }
         });
 	  }
