@@ -27,7 +27,9 @@ public class NextMoveButton extends JButton {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Map.Entry<String, String> nextMove = userInterfaceFactory.getChessMapLogicEngine().getNextMove();
-			userInterfaceFactory.getChessBoardPanel().movePiece(nextMove.getKey(), nextMove.getValue());
+			if (nextMove != null) {
+				userInterfaceFactory.getChessBoardPanel().movePiece(nextMove.getKey(), nextMove.getValue());
+			}
 		}
 	}
 }

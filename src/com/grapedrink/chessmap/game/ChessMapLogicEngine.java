@@ -2,6 +2,19 @@ package com.grapedrink.chessmap.game;
 
 import java.util.Map;
 
+/*
+ * TODO : implement painting/teaching NON-ABSTRACT functions such as:
+ *            getValidMoves()
+ *            getPointDistribution(boolean isBlack)
+ *            getNetPointDistribution()
+ *            getDefendedSquares(boolean isBlack)
+ *            getNetDefendedSquares()
+ *            getDefenseCount(boolean isBlack)
+ *            getNetDefenseCount()
+ *            
+ *        Default function value will be return null, so UI can
+ *        know whether or not the subclass has overriden it
+ */
 public abstract class ChessMapLogicEngine {
 	
 	
@@ -20,6 +33,31 @@ public abstract class ChessMapLogicEngine {
 	 * @return move
 	 */
 	public abstract Map.Entry<String, String> getNextMove();
+	
+	/**
+	 * Sets the active player in the logic's internal representation
+	 * Useful during game imports.
+	 * 
+	 * @param playerColor
+	 */
+	public abstract void setActivePlayer(boolean isBlacksTurn);
+	
+	/**
+	 * Moves the piece at source to destination.
+	 * 
+	 * @param source source
+	 * @param destination destination
+	 */
+	public abstract void setMove(String source, String destination);
+	
+	/**
+	 * Returns whether or not the move is valid, given the circumstances
+	 * of the game (active player, piece positions, etc)
+	 * @param source
+	 * @param destination
+	 * @return
+	 */
+	public abstract boolean isValidMove(String source, String destination);
 	
 	/**
 	 * Sets the board to the previous position

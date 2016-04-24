@@ -10,6 +10,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
+import com.grapedrink.chessmap.game.ChessMapLogicEngine;
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 
 public class PieceDragListener extends MouseAdapter {
@@ -23,33 +24,55 @@ public class PieceDragListener extends MouseAdapter {
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (gameIsInProgress()) {
-			executePlayerTurn();
-		}
-		else {
-			dragIcon(e);
-		}
+		dragIcon(e);
     }
 	
     @Override
     public void mouseReleased(MouseEvent e) {
     	if (mouseIsOverChessBoard(e) && draggedPiece != null) {
-    		JButton destButton = getButtonUnderMouse(e);
-    		destButton.setIcon(draggedPiece);
+    		if (gameIsInProgress()) {
+    			executePlayerTurn(e);
+    		}
+    		else {
+    			dropDraggedIcon(e);
+    		}
     	}
     	else {
-    		JButton srcButton = getSquareThatClicked(e);
-    		srcButton.setIcon(draggedPiece);
+    		resetDraggedIcon(e);
     	}
-    	draggedPiece = null;
 	}
+    
+    private void putIcon(JButton button) {
+    	button.setIcon(draggedPiece);
+    	draggedPiece = null;
+    }
+    
+    private void resetDraggedIcon(MouseEvent e) {
+    	putIcon(getButtonThatWasClicked(e));
+    }
+    
+    private void dropDraggedIcon(MouseEvent e) {
+    	putIcon(getButtonUnderMouse(e));
+    }
     
     private boolean gameIsInProgress() {
     	return !userInterfaceFactory.getFreePlayCheckBox().isSelected();
     }
     
-    private void executePlayerTurn() {
-    	// execute someone's turn
+    private void executePlayerTurn(MouseEvent e) {
+    	String source = getButtonThatWasClicked(e).getName();
+    	String destination = getButtonUnderMouse(e).getName();
+    	if (logic().isValidMove(source, destination)) {
+    		logic().setMove(source, destination);
+    		dropDraggedIcon(e);
+    	}
+    	else {
+    		resetDraggedIcon(e);
+    	}
+    }
+    
+    private ChessMapLogicEngine logic() {
+    	return userInterfaceFactory.getChessMapLogicEngine();
     }
     
     private void dragIcon(MouseEvent e) {
@@ -72,7 +95,7 @@ public class PieceDragListener extends MouseAdapter {
     	return (p.x > 0 && p.y < bounds.getMaxX()) && (p.y > 0 && p.y < bounds.getMaxY());
     }
     
-    private JButton getSquareThatClicked(MouseEvent e) {
+    private JButton getButtonThatWasClicked(MouseEvent e) {
     	return (JButton) e.getComponent();
     }
 

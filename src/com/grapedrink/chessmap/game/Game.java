@@ -1,5 +1,6 @@
 package com.grapedrink.chessmap.game;
 
+import com.grapedrink.chessmap.logic.engine.BitboardLogicEngine;
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 
 
@@ -10,7 +11,7 @@ public class Game {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @SuppressWarnings("unused")
 			public void run() {
-            	ChessMapLogicEngine logic = null;
+            	ChessMapLogicEngine logic = new BitboardLogicEngine();
             	UserInterfaceFactory inputListener = new UserInterfaceFactory(logic);
             }
         });
