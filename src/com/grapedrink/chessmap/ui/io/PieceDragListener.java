@@ -5,12 +5,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import com.grapedrink.chessmap.game.ChessMapLogicEngine;
+import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
 import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
 
 public class PieceDragListener extends MouseAdapter {
@@ -29,8 +31,13 @@ public class PieceDragListener extends MouseAdapter {
 	
     @Override
     public void mouseReleased(MouseEvent e) {
+    	resetColors();
     	if (mouseIsOverChessBoard(e) && draggedPiece != null) {
-    		if (gameIsInProgress()) {
+    		if (getButtonThatWasClicked(e).equals(getButtonUnderMouse(e))) {
+    		    highlightValidMoves(e);
+        		resetDraggedIcon(e);
+    		}
+    		else if (gameIsInProgress()) {
     			executePlayerTurn(e);
     		}
     		else {
@@ -42,13 +49,22 @@ public class PieceDragListener extends MouseAdapter {
     	}
 	}
     
-    private void putIcon(JButton button) {
+    private void highlightValidMoves(MouseEvent e) {
+    	Iterable<String> validMoves = logic().getValidMoves(getButtonThatWasClicked(e).getName());
+    	userInterfaceFactory.getChessBoardPanel().highlight(validMoves, GuiConstants.Colors.YELLOW);
+	}
+
+	private void putIcon(JButton button) {
     	button.setIcon(draggedPiece);
     	draggedPiece = null;
     }
     
     private void resetDraggedIcon(MouseEvent e) {
     	putIcon(getButtonThatWasClicked(e));
+    }
+    
+    private void resetColors() {
+    	userInterfaceFactory.getChessBoardPanel().resetColor();
     }
     
     private void dropDraggedIcon(MouseEvent e) {
@@ -65,6 +81,7 @@ public class PieceDragListener extends MouseAdapter {
     	if (logic().isValidMove(source, destination)) {
     		logic().setMove(source, destination);
     		dropDraggedIcon(e);
+    		userInterfaceFactory.getChessBoardPanel().setBoard(logic().getBoard());
     	}
     	else {
     		resetDraggedIcon(e);

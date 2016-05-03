@@ -25,6 +25,7 @@ public class NewGameButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			userInterfaceFactory.getFreePlayCheckBox().setSelected(false);
 			userInterfaceFactory.getChessMapLogicEngine().setNewGame();
             userInterfaceFactory.getChessBoardPanel().setBoard(userInterfaceFactory.getChessMapLogicEngine().getBoard());
 		}

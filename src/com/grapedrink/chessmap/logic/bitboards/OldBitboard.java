@@ -1,5 +1,8 @@
 package com.grapedrink.chessmap.logic.bitboards;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class OldBitboard {
 
     // possible single-bit values are 2^n, 0 <= n <= 63.
@@ -56,7 +59,27 @@ public class OldBitboard {
         pieces[10] = 0x0000000000000010L;
         pieces[11] = 0x0000000000000081L;
     }
-    
+
+	private static final Map<String, Long> RANKS_AND_FILES = new HashMap<String, Long>() {{
+		put("1",255L);
+		put("2",65280L);
+		put("3",16711680L);
+		put("4",4278190080L);
+		put("5",1095216660480L);
+		put("6",280375465082880L);
+		put("7",71776119061217280L);
+		put("8",-72057594037927936L);
+		put("a",-9187201950435737472L);
+		put("b",4629771061636907072L);
+		put("c",2314885530818453536L);
+		put("d",1157442765409226768L);
+		put("e",578721382704613384L);
+		put("f",289360691352306692L);
+		put("g",144680345676153346L);
+		put("h",72340172838076673L);
+	}};
+	
+	
     private static long bB() { return pieces[0];}
     private static long bK() { return pieces[1];}
     private static long bN() { return pieces[2];}
@@ -121,19 +144,114 @@ public class OldBitboard {
         System.out.println(board.toString());
     }
 
+	private static long getRank(long position) {
+		long currentRank;
+    	for (int rank=1; rank <=8; ++rank) {
+    		currentRank = RANKS_AND_FILES.get(""+rank);
+    		if ((currentRank & position) == position) {
+    			return currentRank;
+    		}
+    	}
+		return 0L;
+	}
+
+	private static long getFile(long position) {
+		long currentFile;
+    	for (char file='a'; file <= 'h'; ++file) {
+    		currentFile = RANKS_AND_FILES.get(file);
+    		if ((currentFile & position) == position) {
+    			return currentFile;
+    		}
+    	}
+		return 0L;
+	}
+	
+	private static long getNeighboringSquares(long position) {
+		long myRank = getRank(position);
+		long myRow = ((position << 1) & myRank) | position | ((position >> 1) & myRank);
+		return position ^ ((myRow << 8) | myRow | (myRow >>> 8));
+	}
+
+	private static long UP_DIAGONAL = 0x0102040810204080L;
+	private static long DOWN_DIAGONAL = 0x8040201008040201L;
+
+	private static long FILLED_DOWN_DIAGONAL = 0x0080C0E0F0F8FCFEL;
+
+	private static long FILLED_UP_DIAGONAL   = 0x000103070F1F3F7FL;
+
+	private static long getUpDiagonal(long position) {
+		if ((UP_DIAGONAL & position) == position) {
+			return UP_DIAGONAL;
+		}
+		long diag;
+		for (int shift=1; shift<8; ++shift) {
+			diag = (FILLED_UP_DIAGONAL) & (UP_DIAGONAL >>> shift);
+			if ((diag & position) == position) {
+				return diag;
+			}
+			diag = (~FILLED_UP_DIAGONAL ^ UP_DIAGONAL) & (UP_DIAGONAL << shift);
+			if ((diag & position) == position) {
+				return diag;
+			}
+		}
+		return 0L;
+	}
+
+	private static long getDownDiagonal(long position) {
+		long diag;
+		for (int shift=0; shift<8; ++shift) {
+			diag = (FILLED_DOWN_DIAGONAL | DOWN_DIAGONAL) & (DOWN_DIAGONAL << shift);
+			if ((diag & position) == position) {
+				return diag;
+			}
+			diag = (~FILLED_DOWN_DIAGONAL | DOWN_DIAGONAL) & (DOWN_DIAGONAL >>> shift);
+			if ((diag & position) == position) {
+				return diag;
+			}
+		}
+		return 0L;
+	}
+	
+	private static long getPawnMoves(String pieceCode, long position, long opponents) {
+		char playerTurn = pieceCode.charAt(0);
+		long moveset;
+		long rank;
+		long attacks;
+		switch (playerTurn) {
+		case 'w':
+			moveset = position << 8;
+			if ((position & 65280L) == position) {
+				moveset |= position << 16;
+			}
+			rank = getRank(position);
+			attacks = (((position << 1) & rank) | ((position >>> 1) & rank)) << 8;
+			return moveset | (attacks & opponents);
+		case 'b':
+			moveset = position >>> 8;
+			if((position & 0xFF000000000000L) == position) {
+				moveset |= position >>> 16;
+			}
+			rank = getRank(position);
+			attacks = (((position << 1) & rank) | ((position >>> 1) & rank)) >>> 8;
+			return moveset | (attacks & opponents);
+		default:
+			return 0L;
+		}
+	}
+	
+	private static long getKnightMoves(long position) {
+		long rank = getRank(position);
+		long oneaway = ((position << 1) & rank) | ((position >>> 1) & rank);
+		long twoaway = ((position << 2) & rank) | ((position >>> 2) & rank);
+		return (oneaway << 16) | (oneaway >>> 16) | (twoaway << 8) | (twoaway >>> 8);
+	}
+	
     public static void main(String... args) {
-  //      initialize();
-//        move("e2", "e4");
     	
-    	long afile = 0x8080808080808080L;
+    	String lolz = "h1";
+    	long eight = 8L;
+    	//eight <<= 4L;
     	
-    	//printLong(afile >>> i);
-        
-        for(int i=0; i<8; ++i) {
-            System.out.println(afile >>> i);
-        }
-        
-        //int num = '1'-48;
-        //System.out.println(num);
+    	printLong(2251799813685248L);
     }
 }

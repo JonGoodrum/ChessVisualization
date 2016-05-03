@@ -1,11 +1,11 @@
 package com.grapedrink.chessmap.gui.board;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.grapedrink.chessmap.gui.icons.IconHelper;
@@ -17,7 +17,7 @@ public class ChessBoardPanel extends JPanel {
 
 	private IconHelper icons;
 	private boolean rank1AtBottom;
-	private Map<String, JButton> board;
+	private Map<String, ChessBoardSquare> board;
 	private UserInterfaceFactory userInterfaceFactory;
 	
 	public ChessBoardPanel(UserInterfaceFactory userInterfaceFactory) {
@@ -33,7 +33,7 @@ public class ChessBoardPanel extends JPanel {
 	}
 	
 	private void initializeBoard() {
-		JButton square;
+		ChessBoardSquare square;
 		String position;
 		rank1AtBottom = true;
 		board = new HashMap<>();
@@ -88,7 +88,7 @@ public class ChessBoardPanel extends JPanel {
 			setPiece(square, null);
 		}
 	}
-
+	
 	/**
 	 * Loads an opening into the game.  Program
 	 * searches Wikipedia for this particular opening,
@@ -119,5 +119,17 @@ public class ChessBoardPanel extends JPanel {
 		}
 		rank1AtBottom = !rank1AtBottom;
 		super.revalidate();
+	}
+
+	public void resetColor() {
+		for (ChessBoardSquare square : board.values()) {
+			square.resetColor();
+		}
+	}
+	
+	public void highlight(Iterable<String> validMoves, Color color) {
+		for (String position : validMoves) {
+			board.get(position).setColor(color);
+		}
 	}
 }

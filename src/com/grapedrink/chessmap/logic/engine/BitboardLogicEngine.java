@@ -59,4 +59,9 @@ public class BitboardLogicEngine extends ChessMapLogicEngine {
 		bitboard.resetBoard();
 	}
 
+	@Override
+	public Iterable<String> getValidMoves(String source) {
+		return bitboard.getValidMoves(source);
+	}
+
 }

@@ -60,6 +60,16 @@ public abstract class ChessMapLogicEngine {
 	public abstract boolean isValidMove(String source, String destination);
 	
 	/**
+	 * Returns an Iterable of positions which are valid moves for the square
+	 * at source.  If a piece has no valid moves, or the square is empty,
+	 * then this returns an empty list.
+	 * 
+	 * @param source
+	 * @return
+	 */
+	public abstract Iterable<String> getValidMoves(String source);
+	
+	/**
 	 * Sets the board to the previous position
 	 */
 	public abstract void undoMove();
