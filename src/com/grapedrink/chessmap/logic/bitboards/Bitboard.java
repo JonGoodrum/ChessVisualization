@@ -204,15 +204,6 @@ public class Bitboard {
 			}
 		}
 		return board;
-		/*
-		Map<String, String> board = new HashMap<>();
-		for (String pieceCode : pieces.keySet()) {
-            for (String position : getLocationOfPieces(pieceCode)) {
-	            board.put(position, pieceCode);
-			}
-		}
-		return board;
-		 */
 	}
 	
 	public boolean isValidMove(String source, String destination) {

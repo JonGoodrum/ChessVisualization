@@ -247,11 +247,12 @@ public class OldBitboard {
 	}
 	
     public static void main(String... args) {
-    	
-    	String lolz = "h1";
-    	long eight = 8L;
+    	int num = '1';
+    	System.out.println(num);
+    	//String lolz = "h1";
+    	//long eight = 8L;
     	//eight <<= 4L;
     	
-    	printLong(2251799813685248L);
+    	//printLong(2251799813685248L);
     }
 }
