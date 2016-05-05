@@ -1,5 +1,6 @@
 package com.grapedrink.chessmap.logic.bitboards;
 
+//	https://chessprogramming.wikispaces.com/Subtracting+a+Rook+from+a+Blocking+Piece
 public class BitboardConstants {
 	
 	public static final long BORDER    = 0xFF818181818181FFL;
@@ -116,6 +117,7 @@ public class BitboardConstants {
 		0x0000000000000010L,
 		0x0000000000000081L
 	};
+	
 	
 	/**
 	 * Determines whether or not value
