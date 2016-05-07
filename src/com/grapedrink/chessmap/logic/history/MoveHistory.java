@@ -54,26 +54,28 @@ public class MoveHistory {
 	 * Returns the next stored move, or null if none
 	 * 
 	 * @return move
+	 * @throws IllegalAccessException 
 	 */
-	public Map.Entry<String, String> getNext() {
+	public Map.Entry<String, String> getNext() throws IllegalAccessException {
 		if (moveCount < history.size()) {
 			switchTurns();
 			return history.get(++moveCount);
 		}
-		return null;
+		throw new IllegalAccessException();
 	}
 	
 	/**
-	 * Returns the previous stored move, or null if none
+	 * Returns the previous stored move.
 	 * 
 	 * @return move
+	 * @throws IllegalAccessException 
 	 */
-	public Map.Entry<String, String> getPrev() {
+	public Map.Entry<String, String> getPrev() throws IllegalAccessException {
 		if (moveCount > 0) {
 			switchTurns();
 			return history.get(moveCount--);
 		}
-		return null;
+		throw new IllegalAccessException();
 	}
 	
 	/**
