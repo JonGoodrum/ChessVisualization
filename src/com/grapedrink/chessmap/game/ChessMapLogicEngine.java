@@ -23,16 +23,44 @@ public abstract class ChessMapLogicEngine {
 	 */
 	public abstract void setNewGame();
 
+	
 	/**
-	 * Returns the next stored move, if any.
-	 * Returns null if no next move.
+	 * Returns the next stored move.
 	 * 
 	 * ex: returns <"e2", "e4">, a piece moving
 	 * from e2 to e4
 	 * 
 	 * @return move
 	 */
-	public abstract Map.Entry<String, String> getNextMove();
+	public abstract Map.Entry<String, String> getNextMove() throws IndexOutOfBoundsException;
+
+	
+	/**
+	 * Returns the previous stored move.
+	 * 
+	 * ex: returns <"e2", "e4">, a piece moving
+	 * from e2 to e4
+	 * 
+	 * @return move
+	 */
+	public abstract Map.Entry<String, String> getPrevMove() throws IndexOutOfBoundsException;
+
+	
+	/**
+	 * Returns whether or not the game has a next move stored.
+	 * 
+	 * @return move available
+	 */
+	public abstract boolean hasNextMove();
+
+	
+	/**
+	 * Returns whether or not the game has a next move stored.
+	 * 
+	 * @return move available
+	 */
+	public abstract boolean hasPrevMove();
+
 	
 	/**
 	 * Sets the active player in the logic's internal representation
@@ -42,6 +70,7 @@ public abstract class ChessMapLogicEngine {
 	 */
 	public abstract void setActivePlayer(boolean isBlacksTurn);
 	
+	
 	/**
 	 * Moves the piece at source to destination.
 	 * 
@@ -49,6 +78,7 @@ public abstract class ChessMapLogicEngine {
 	 * @param destination destination
 	 */
 	public abstract void setMove(String source, String destination);
+	
 	
 	/**
 	 * Returns whether or not the move is valid, given the circumstances
@@ -58,6 +88,7 @@ public abstract class ChessMapLogicEngine {
 	 * @return
 	 */
 	public abstract boolean isValidMove(String source, String destination);
+	
 	
 	/**
 	 * Returns an Iterable of positions which are valid moves for the square
@@ -69,10 +100,6 @@ public abstract class ChessMapLogicEngine {
 	 */
 	public abstract Iterable<String> getValidMoves(String source);
 	
-	/**
-	 * Sets the board to the previous position
-	 */
-	public abstract void undoMove();
 	
     /**
      * Returns a Map<String, String> containing
@@ -87,6 +114,7 @@ public abstract class ChessMapLogicEngine {
      * @return positions of pieces
      */
 	public abstract Map<String, String> getBoard();
+	
 	
 	/**
 	 * Loads a game into the engine.
@@ -104,6 +132,7 @@ public abstract class ChessMapLogicEngine {
 	 *     ...
 	 */
 	public abstract void loadGame(Map<Integer, Map.Entry<String, String>> game);
+	
 	
 	public abstract void resetBoard();
 }

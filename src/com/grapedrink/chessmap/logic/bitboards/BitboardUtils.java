@@ -1,9 +1,12 @@
 package com.grapedrink.chessmap.logic.bitboards;
 
+import java.util.HashSet;
+import java.util.Set;
+
 //	https://chessprogramming.wikispaces.com/Subtracting+a+Rook+from+a+Blocking+Piece
 public class BitboardUtils {
 	
-	public static final long BORDER = 0xFF818181818181FFL;
+	public static final long BORDER      = 0xFF818181818181FFL;
 	public static final long BL_BORDER   = 0x80808080808080FFL;
 	public static final long BR_BORDER   = 0x01010101010101FFL;
 	public static final long TL_BORDER   = 0xFF80808080808080L;
@@ -12,11 +15,6 @@ public class BitboardUtils {
 	public static final long R_BORDER    = 0x0101010101010101L;
 	public static final long T_BORDER    = 0xFF00000000000000L;
 	public static final long B_BORDER    = 0x00000000000000FFL;
-
-	public static final long MAIN_DIAGONAL = 0x0102040810204080L;
-	public static final long MAIN_ANTI_DIAGONAL = 0x8040201008040201L;
-	
-	public static final String[] PIECE_CODES = {"bB", "bK", "bN", "bP", "bQ", "bR", "wB", "wK", "wN", "wP", "wQ", "wR"};
 	
 	/**
 	 * The upward diagonals, arranged from left to right.
@@ -97,61 +95,6 @@ public class BitboardUtils {
 		0x0101010101010101L,
 	};
 	
-	public static final long FILLED_UP_DIAGONAL   = 0x000103070F1F3F7FL;
-	public static final long FILLED_DOWN_DIAGONAL = 0x0080C0E0F0F8FCFEL;
-	
-	/**
-	 * The starting positions of the pieces, with
-	 * INITIAL_POSITIONS[0] representing the black bishops
-	 * and INITIAL_POSITIONS[11] representing the white rooks.
-	 * The order of these items correlates with the ordering
-	 * of the elements in PIECE_CODES.
-	 */
-	public static final Long[] INITIAL_POSITIONS = {
-		0x2400000000000000L,
-		0x0800000000000000L,
-		0x4200000000000000L,
-		0x00FF000000000000L,
-		0x1000000000000000L,
-		0x8100000000000000L,
-		0x0000000000000024L,
-		0x0000000000000008L,
-		0x0000000000000042L,
-		0x000000000000FF00L,
-		0x0000000000000010L,
-		0x0000000000000081L
-	};
-	
-	
-	/**
-	 * Determines whether or not value
-	 * is a position(aka power of 2).
-	 * 
-	 * @param value value
-	 * @return whether or not it's a position
-	 */
-	private static boolean isPosition(long value) {
-		return value == 0 ? false : (value & (value-1)) == 0;
-	}
-	
-	private static boolean isPosition(String str) {
-		return !(str == null || str.length() != 2 || str.charAt(0) < 'a' || str.charAt(0) > 'h' || str.charAt(1) < '1' || str.charAt(1) > '8');
-	}
-	
-	/**
-	 * Wrapper class for throwing exceptions.  Throws an exception if
-	 * a long is not a valid position (ex: 0b00010100L).
-	 * 
-	 * @param position position to validate
-	 * @throws IllegalArgumentException
-	 */
-	private static void validatePosition(long position) throws IllegalArgumentException {
-		if (!isPosition(position)) {
-			throw new IllegalArgumentException();
-		}
-	}
-	
-	
 	/**
 	 * Converts the String representation of a square,
 	 * such as "c2", into a long, such as 8192L.
@@ -161,9 +104,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getPositionAsLong(String position) throws IllegalArgumentException {
-		if (!isPosition(position)) {
-			throw new IllegalArgumentException();
-		}
+		InputValidation.validatePosition(position);
 		return RANKS[position.charAt(1)-49] & FILES[position.charAt(0)-97];
 	}
 	
@@ -176,7 +117,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static String getPositionAsString(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		int rank = 0;
 		int file = 0;
 		for (int i=0; i<RANKS.length; ++i) {
@@ -202,7 +143,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getRank(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		for (long ray : RANKS) {
 			if ((ray & position) == position) {
 				return ray;
@@ -220,7 +161,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getFile(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		for (long ray : FILES) {
 			if ((ray & position) == position) {
 				return ray;
@@ -237,7 +178,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getDiagonal(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		for (long ray : DIAGONALS) {
 			if ((ray & position) == position) {
 				return ray;
@@ -254,7 +195,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getAntiDiagonal(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		for (long ray : ANTI_DIAGONALS) {
 			if ((ray & position) == position) {
 				return ray;
@@ -271,7 +212,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getAdjacentSquares(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		long myRow = getRank(position) & ((position << 1) | position | (position >>> 1));
 		return position ^ ((myRow << 8) | myRow | (myRow >>> 8));
 	}
@@ -284,7 +225,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getKnightSquares(long position) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		long oneaway = ((position << 1) | (position >>> 1)) & getRank(position);
 		long twoaway = ((position << 2) | (position >>> 2)) & getRank(position);
 		return (oneaway << 16) | (oneaway >>> 16) | (twoaway << 8) | (twoaway >>> 8);
@@ -301,7 +242,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static boolean hasNeighbor(long position, int direction) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		switch (direction) {
 		case 0:
 			return (position & T_BORDER) == 0L;
@@ -339,7 +280,7 @@ public class BitboardUtils {
 	 * @throws IllegalArgumentException
 	 */
 	public static long getNeighbor(long position, int direction) throws IllegalArgumentException {
-		validatePosition(position);
+		InputValidation.validatePosition(position);
 		switch (direction) {
 		case 0:
 			return position << 8;
@@ -378,6 +319,18 @@ public class BitboardUtils {
 			}
 		}
 		System.out.println(binaryBoard.toString());
+	}
+
+	public static Set<String> getPositions(long positions) {
+		Set<String> set = new HashSet<>();
+		long pos;
+		for (int i=0; i<64; ++i) {
+			pos = 1L << i;
+			if ((positions & pos) == pos) {
+				set.add(getPositionAsString(pos));
+			}
+		}
+		return set;
 	}
 	
 }

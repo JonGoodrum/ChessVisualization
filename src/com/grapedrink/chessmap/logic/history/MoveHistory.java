@@ -1,6 +1,5 @@
 package com.grapedrink.chessmap.logic.history;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,29 +10,29 @@ public class MoveHistory {
 
 	private int moveCount;
 	private boolean isBlacksTurn;
-	private Map<Integer, Map.Entry<String, String>> history;
+	private Map<Integer, Turn> history;
 
 	public MoveHistory() {
 		moveCount = 0;
 		isBlacksTurn = false;
 		history = new HashMap<>();
 	}
-	
-	public void addMove(String src, String dst) {
-		history.put(++moveCount, new AbstractMap.SimpleEntry<String, String>(src, dst));
+
+	public void addMove(Turn turn) {
+		history.put(++moveCount, turn);
 		int i = moveCount;
 		while (history.remove(++i) != null);
 		switchTurns();
 	}
-	
+
 	public boolean isBlacksTurn() {
 		return isBlacksTurn;
 	}
-	
-	public void setBlacksTurn(boolean isBlacksTurn) {
+
+	public void setActivePlayer(boolean isBlacksTurn) {
 		this.isBlacksTurn = isBlacksTurn;
 	}
-	
+
 	/**
 	 * Returns whether or not there is a move stored after the current move
 	 * @return
@@ -41,7 +40,7 @@ public class MoveHistory {
 	public boolean hasNext() {
 		return moveCount < history.size();
 	}
-	
+
 	/**
 	 * Returns whether or not there is a move stored before the current move
 	 * @return
@@ -54,28 +53,28 @@ public class MoveHistory {
 	 * Returns the next stored move, or null if none
 	 * 
 	 * @return move
-	 * @throws IllegalAccessException 
+	 * @throws IndexOutOfBoundsException 
 	 */
-	public Map.Entry<String, String> getNext() throws IllegalAccessException {
+	public Turn getNext() throws IndexOutOfBoundsException {
 		if (moveCount < history.size()) {
 			switchTurns();
 			return history.get(++moveCount);
 		}
-		throw new IllegalAccessException();
+		throw new IndexOutOfBoundsException();
 	}
 	
 	/**
 	 * Returns the previous stored move.
 	 * 
 	 * @return move
-	 * @throws IllegalAccessException 
+	 * @throws IndexOutOfBoundsException 
 	 */
-	public Map.Entry<String, String> getPrev() throws IllegalAccessException {
+	public Turn getPrev() throws IndexOutOfBoundsException {
 		if (moveCount > 0) {
 			switchTurns();
 			return history.get(moveCount--);
 		}
-		throw new IllegalAccessException();
+		throw new IndexOutOfBoundsException();
 	}
 	
 	/**
@@ -93,4 +92,20 @@ public class MoveHistory {
 	private void switchTurns() {
 		isBlacksTurn = !isBlacksTurn;
 	}
+
+	/**
+	 * Returns the previous stored move.
+	 * Does not update HEAD pointer.
+	 * 
+	 * Returns null if first move.
+	 * 
+	 * @return move
+	 */
+	public Turn mostRecent() {
+		if (moveCount > 0) {
+			return history.get(moveCount);
+		}
+		return null;
+	}
+
 }

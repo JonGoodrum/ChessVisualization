@@ -2,22 +2,39 @@ package tst.com.grapedrink.chessmap.logic.history;
 
 import static org.junit.Assert.*;
 
-import java.util.Map;
-
 import org.junit.Test;
 
 import com.grapedrink.chessmap.logic.history.MoveHistory;
+import com.grapedrink.chessmap.logic.history.Turn;
 
 public class MoveHistoryTest {
 
 	private MoveHistory getRuyLopez() {
 		MoveHistory ruyLopez = new MoveHistory();
-		ruyLopez.addMove("e2", "e4");
-		ruyLopez.addMove("e7", "e5");
-		ruyLopez.addMove("g1", "f3");
-		ruyLopez.addMove("b8", "c6");
-		ruyLopez.addMove("f1", "b5");
+		Turn t1 = new Turn("e2", "e4");
+		Turn t2 = new Turn("e7", "e5");
+		Turn t3 = new Turn("g1", "f3");
+		Turn t4 = new Turn("b8", "c6");
+		Turn t5 = new Turn("f1", "b5");
+		ruyLopez.addMove(t1);
+		ruyLopez.addMove(t2);
+		ruyLopez.addMove(t3);
+		ruyLopez.addMove(t4);
+		ruyLopez.addMove(t5);
 		return ruyLopez;
+	}
+	
+	@Test
+	public void test_addMove() throws IllegalAccessException {
+		MoveHistory game = getRuyLopez();
+		game.getPrev();
+		game.getPrev();
+		game.getPrev();
+		assertTrue(game.hasNext());
+		assertFalse(game.isBlacksTurn());
+		game.addMove(new Turn("a2", "a4"));
+		assertEquals(3, game.getMoveCount());
+		assertFalse(game.hasNext());
 	}
 	
 	@Test
@@ -56,32 +73,32 @@ public class MoveHistoryTest {
 		game.getPrev();
 		game.getPrev();
 		game.getPrev();
-		assertEquals("e4", game.getPrev().getValue());
+		assertEquals("e4", game.getPrev().getDst());
 		try {
 			game.getPrev();
-			fail("MoveHistory.getPrev() failed to throw an IllegalAccessException.");
+			fail("MoveHistory.getPrev() failed to throw an IndexOutOfBoundsException.");
 		}
-		catch (IllegalAccessException e) {
+		catch (IndexOutOfBoundsException e) {
 		}
 	}
 	
 	@Test
-	public void test_getNext() throws IllegalAccessException {
+	public void test_getNext() throws IndexOutOfBoundsException {
 		MoveHistory game = getRuyLopez();
 		game.getPrev();
 		game.getPrev();
 		game.getNext();
-		assertEquals("b5", game.getNext().getValue());
+		assertEquals("b5", game.getNext().getDst());
 		try {
 			game.getNext();
-			fail("MoveHistory.getNext() failed to throw an IllegalAccessException.");
+			fail("MoveHistory.getNext() failed to throw an IndexOutOfBoundsException.");
 		}
-		catch (IllegalAccessException e) {
+		catch (IndexOutOfBoundsException e) {
 		}
 	}
 	
 	@Test
-	public void test_hasNext() throws IllegalAccessException {
+	public void test_hasNext() {
 		MoveHistory game = getRuyLopez();
 		assertFalse(game.hasNext());
 		game.getPrev();
@@ -89,7 +106,7 @@ public class MoveHistoryTest {
 	}
 		
 	@Test
-	public void test_hasPrev() throws IllegalAccessException {
+	public void test_hasPrev() {
 		MoveHistory game = getRuyLopez();
 		assertTrue(game.hasPrev());
 		game.getPrev();

@@ -25,7 +25,7 @@ public class PreviousMoveButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			userInterfaceFactory.getChessMapLogicEngine().undoMove();
+			userInterfaceFactory.getChessMapLogicEngine().getPrevMove();
 			userInterfaceFactory.getChessBoardPanel().setBoard(userInterfaceFactory.getChessMapLogicEngine().getBoard());
 		}
 	}
