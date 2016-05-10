@@ -8,6 +8,11 @@ import com.grapedrink.chessmap.logic.bitboards.InputValidation;
 
 public class Turn {
 
+	private boolean a1 = true;
+	private boolean h1 = true;
+	private boolean a8 = true;
+	private boolean h8 = true;
+	
 	private String src;
 	private String dst;
 	Map<String, Long> pieceDiffs;
@@ -39,5 +44,37 @@ public class Turn {
 	
 	public Map<String, Long> getDiffs() {
 		return pieceDiffs;
+	}
+
+	public boolean getA1() {
+		return a1;
+	}
+	
+	public boolean getA8() {
+		return a8;
+	}
+	
+	public boolean getH1() {
+		return h1;
+	}
+	
+	public boolean getH8() {
+		return h8;
+	}
+
+	public void setA1() {
+		a1 = true;
+	}
+	
+	public void setA8() {
+		a8 = true;
+	}
+	
+	public void setH1() {
+		h1 = true;
+	}
+
+	public void setH8() {
+		h8 = true;
 	}
 }

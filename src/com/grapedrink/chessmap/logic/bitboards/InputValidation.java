@@ -41,7 +41,7 @@ public class InputValidation {
 
 
 	public static void validatePieceCode(String pieceCode) throws IllegalArgumentException {
-		for (String savedPieceCode : PieceUtils.PIECE_CODES) {
+		for (String savedPieceCode : PieceContainer.PIECE_CODES) {
 			if (savedPieceCode.equals(pieceCode)) {
 				return;
 			}

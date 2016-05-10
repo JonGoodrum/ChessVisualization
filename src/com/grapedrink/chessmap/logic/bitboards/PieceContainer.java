@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.grapedrink.chessmap.logic.history.Turn;
 
-public class PieceUtils {
+public class PieceContainer {
 
 	private boolean a8CastleAllowed;
 	private boolean a1CastleAllowed;
@@ -40,7 +40,7 @@ public class PieceUtils {
 		0x0000000000000081L
 	};
 	
-	public PieceUtils() {
+	public PieceContainer() {
 		isPromotion = false;
 		a1CastleAllowed = true;
 		a8CastleAllowed = true;
@@ -112,23 +112,33 @@ public class PieceUtils {
 			}
 		}
 		long currentEnemyPieces = playerIsBlack ? getWhitePieces() : getBlackPieces();
-		handleEnPassant(previousEnemyPieces, currentEnemyPieces, src, dst);
-		handleCastling(src, dst);
-		disableCastlingIfNecessary(src);
-		disableCastlingIfNecessary(dst);
+		handleEnPassant(previousEnemyPieces, currentEnemyPieces, src, dst, turn);
+		handleCastling(src, dst, turn);
+		disableCastlingIfNecessary(src, turn);
+		disableCastlingIfNecessary(dst, turn);
 		setPromotion(dst);
 		
 		/*
 		 * TODO : turn this into a user prompt, where they can pick any BNRQ piece
 		 */
 		if (isPromotion()) {
-			promotePawn(playerIsBlack ? "bQ" : "wQ");
+			promotePawn(playerIsBlack ? "bQ" : "wQ", turn);
 		}
 		
 		return turn;
 	}
 	
-	private void handleCastling(long src, long dst) {
+	public void setMove(Turn turn) {
+		for (String pieceCode : turn.getDiffs().keySet()) {
+			setPieceCode(pieceCode, turn.getDiffs().get(pieceCode));
+		}
+		a1CastleAllowed = turn.getA1();
+		a8CastleAllowed = turn.getA8();
+		h1CastleAllowed = turn.getH1();
+		h8CastleAllowed = turn.getH8();
+	}
+	
+	private void handleCastling(long src, long dst, Turn turn) {
 		boolean playerIsBlack = dst == (dst & getBlackPieces());
 		long castlingRank = playerIsBlack ? BitboardUtils.RANKS[7] : BitboardUtils.RANKS[0];
 		boolean isKing = playerIsBlack ? (dst == (pieces.get("bK") & dst)) : (dst == (pieces.get("wK") & dst));
@@ -138,35 +148,40 @@ public class PieceUtils {
 
 		if (playerIsBlack && kingWasOnE && pieceMovedToC) {
         	long a8d8 = BitboardUtils.RANKS[7] & (BitboardUtils.FILES[0] | BitboardUtils.FILES[3]);
+        	turn.addDiff("bR", pieces.get("bR"));
         	pieces.put("bR", pieces.get("bR") ^ a8d8);
 			a8CastleAllowed = false;
 			h8CastleAllowed = false;
 		}
         else if (playerIsBlack && kingWasOnE && pieceMovedToG) {
         	long f8h8 = BitboardUtils.RANKS[7] & (BitboardUtils.FILES[5] | BitboardUtils.FILES[7]);
+        	turn.addDiff("bR", pieces.get("bR"));
         	pieces.put("bR", pieces.get("bR") ^ f8h8);
 			a8CastleAllowed = false;
 			h8CastleAllowed = false;			
 		}
         else if (!playerIsBlack && kingWasOnE && pieceMovedToC) {
         	long a1d1 = BitboardUtils.RANKS[0] & (BitboardUtils.FILES[0] | BitboardUtils.FILES[3]);
+        	turn.addDiff("wR", pieces.get("wR"));
         	pieces.put("wR", pieces.get("wR") ^ a1d1);
 			a1CastleAllowed = false;
 			h1CastleAllowed = false;			
 		}
         else if (!playerIsBlack && kingWasOnE && pieceMovedToG) {
         	long f1d1 = BitboardUtils.RANKS[0] & (BitboardUtils.FILES[5] | BitboardUtils.FILES[7]);
+        	turn.addDiff("wR", pieces.get("wR"));
         	pieces.put("wR", pieces.get("wR") ^ f1d1);
         	a1CastleAllowed = false;
 			h1CastleAllowed = false;			
 		}
 	}
 	
-	private void handleEnPassant(long prevEnemy, long currEnemy, long src, long dst) {
+	private void handleEnPassant(long prevEnemy, long currEnemy, long src, long dst, Turn turn) {
 		if (isEnPassant(prevEnemy, currEnemy, src, dst)) {
 			String enemyPawnType = src > dst ? "wP" : "bP";
 			long oldPawnStructure = pieces.get(enemyPawnType);
 			long deadPawn = src > dst ? dst << 8 : dst >>> 8;
+			turn.addDiff(enemyPawnType, oldPawnStructure);
 			pieces.put(enemyPawnType, oldPawnStructure ^ deadPawn);
 		}
 	}
@@ -179,31 +194,39 @@ public class PieceUtils {
 	    return pawnJustMoved && pieceMovedDiagonally && enemyPiecesHaveNotChanged;
 	}
 
-	private void disableCastlingIfNecessary(long position) {
+	private void disableCastlingIfNecessary(long position, Turn turn) {
 		long a1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[0];
 		long a8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[0];
 		long h1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[7];
 		long h8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[7];
-		long e1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[0];
-		long e8 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[0];
+		long e1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[4];
+		long e8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[4];
 		
         if (position == a1) {
+        	turn.setA1();
         	a1CastleAllowed = false;
 		}
 		else if (position == a8) {
+			turn.setA8();
 			a8CastleAllowed = false;
 		}
 		else if (position == h1) {
+			turn.setH1();
 			h1CastleAllowed = false;
 		}
 		else if (position == h8) {
+			turn.setH8();
 			h8CastleAllowed = false;
 		}
 		else if (position == e1) {
+			turn.setA1();
+			turn.setH1();
 			a1CastleAllowed = false;
 			h1CastleAllowed = false;
 		}
 		else if (position == e8) {
+			turn.setA8();
+			turn.setH8();
 			a8CastleAllowed = false;
 			h8CastleAllowed = false;
 		}
@@ -221,12 +244,14 @@ public class PieceUtils {
 		isPromotion = isPawn && isLastRank;
 	}
 
-	public void promotePawn(String pieceCode) {
+	public void promotePawn(String pieceCode, Turn turn) {
 		char color = pieceCode.charAt(0);
 		long rank = color == 'b' ? BitboardUtils.RANKS[0] : BitboardUtils.RANKS[7];
 		String pawnCode = String.format("%sP", color);
 		if (isPromotion) {
 			long promotion = rank & pieces.get(String.format("%sP", color));
+			turn.addDiff(pawnCode, pieces.get(pawnCode));
+			turn.addDiff(pieceCode, pieces.get(pieceCode));
 			pieces.put(pawnCode, pieces.get(pawnCode) ^ promotion);
 			pieces.put(pieceCode, pieces.get(pieceCode) | promotion);
 		}
@@ -262,38 +287,8 @@ public class PieceUtils {
 	    }
 	    return false;
 	}
-
-	public long getValidMoves(long position, Turn mostRecent) {
-		long moves = 0L;
-		PieceColor color = PieceColor.get(getPieceCode(position));
-		PieceType type = PieceType.get(getPieceCode(position));
-		switch (type) {
-		case BISHOP:
-			moves = getValidBishopMoves(position, color);
-			break;
-		case KNIGHT:
-			moves = getValidKnightMoves(position, color);
-			break;
-		case KING:
-			moves = getValidKingMoves(position, color);
-			moves |= getAvailableCastles(position, color);
-			break;
-		case PAWN:
-			moves = getValidPawnMoves(position, color);
-			moves |= getEnPassant(position, color, mostRecent);
-			break;
-		case QUEEN:
-			moves = getValidRookMoves(position, color) | getValidBishopMoves(position, color);
-			break;
-		case ROOK:
-			moves = getValidRookMoves(position, color);
-			break;
-		}
-		getAllAttacks(color);
-		return moves;
-	}
 	
-	private long getAvailableCastles(long position, PieceColor color) {
+	private long getAvailableCastles(long position) {
 		long b1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[1];
 		long c1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[2];
 		long d1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[3];
@@ -306,27 +301,28 @@ public class PieceUtils {
 		long e8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[4];
 		long f8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[5];
 		long g8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[6];
-		if (PieceColor.WHITE.equals(color) && isEmpty(b1|c1|d1) && a1CastleAllowed) {
+		long moves = 0L;
+		if (!isBlack(position) && isEmpty(b1|c1|d1) && a1CastleAllowed) {
 			if (!isUnderAttack(c1, PieceColor.BLACK) && !isUnderAttack(d1, PieceColor.BLACK) && !isUnderAttack(e1, PieceColor.BLACK)) {
-				return c1;
+				moves |= c1;
 			}
 		}
-		else if (PieceColor.WHITE.equals(color) && isEmpty(f1|g1) && h1CastleAllowed) {
+		if (!isBlack(position) && isEmpty(f1|g1) && h1CastleAllowed) {
 			if (!isUnderAttack(e1, PieceColor.BLACK) && !isUnderAttack(f1, PieceColor.BLACK) && !isUnderAttack(g1, PieceColor.BLACK)) {
-				return g1;
+				moves |= g1;
 			}
 		}
-		else if (PieceColor.BLACK.equals(color)  && isEmpty(b8|c8|d8) && a8CastleAllowed) {
+		if (isBlack(position)  && isEmpty(b8|c8|d8) && a8CastleAllowed) {
 			if (!isUnderAttack(c8, PieceColor.WHITE) && !isUnderAttack(d8, PieceColor.WHITE) && !isUnderAttack(e8, PieceColor.WHITE)) {
-				return c8;
+				moves |= c8;
 			}
 		}
-		else if (PieceColor.BLACK.equals(color)  && isEmpty(f8|g8) && h8CastleAllowed) {
+		if (isBlack(position)  && isEmpty(f8|g8) && h8CastleAllowed) {
 			if (!isUnderAttack(e8, PieceColor.WHITE) && !isUnderAttack(f8, PieceColor.WHITE) && !isUnderAttack(g8, PieceColor.WHITE)) {
-				return g8;
+				moves |= g8;
 			}
 		}
-		return 0L;
+		return moves;
 	}
 	
 	private boolean isUnderAttack(long position, PieceColor attacker) {
@@ -338,41 +334,13 @@ public class PieceUtils {
 		Set<Long> playerPieces = getIndividualPieces(attacker);
 		long attacks = 0L;
 		for (Long position : playerPieces) {
-			PieceType type = PieceType.get(getPieceCode(position));
-			switch (type) {
-			case BISHOP:
-				attacks |= getValidBishopMoves(position, attacker);
-				break;
-			case KNIGHT:
-				attacks |= getValidKnightMoves(position, attacker);
-				break;
-			case KING:
-				attacks |= getValidKingMoves(position, attacker);
-				break;
-			case PAWN:
-				attacks |= getSquaresDefendedByPawn(position, attacker);
-				break;
-			case QUEEN:
-				attacks |= getValidRookMoves(position, attacker) | getValidBishopMoves(position, attacker);
-				break;
-			case ROOK:
-				attacks |= getValidRookMoves(position, attacker);
-				break;
-			}
+			attacks |= MoveUtils.getDefendedSquares(position, getAllPieces(), getPieceCode(position));
 		}
-		System.out.println("\n" + attacker.toString() + " attacks:\n\n");
-		BitboardUtils.printBinaryBoard(attacks);
 		return attacks;
 	}
 	
-	private long getSquaresDefendedByPawn(long position, PieceColor color) {
-		long myRank = BitboardUtils.getRank(position);
-		long nextRank = PieceColor.BLACK.equals(color) ? (myRank >>> 8) : (myRank << 8);
-		return BitboardUtils.getAdjacentSquares(position) & nextRank;
-	}
-	
-	private boolean isEmpty(long squares) {
-		return (getAllPieces() & squares) == 0L; 
+	private boolean isEmpty(long boardSquares) {
+		return (getAllPieces() & boardSquares) == 0L; 
 	}
 	
 	private Set<Long> getIndividualPieces(PieceColor color) {
@@ -387,120 +355,26 @@ public class PieceUtils {
 		}
 		return individualPieces;
 	}
-
-	private long getEnPassant(long position, PieceColor color, Turn mostRecent) {
-		if (mostRecent == null) {
-			return 0L;
-		}
-		
-		long lastSrc = BitboardUtils.getPositionAsLong(mostRecent.getSrc());
-		long lastDst = BitboardUtils.getPositionAsLong(mostRecent.getDst());
-		long pawnStructure = pieces.get("bP") | pieces.get("wP");
-		long enPassantRank = PieceColor.BLACK.equals(color) ? BitboardUtils.RANKS[3] : BitboardUtils.RANKS[4];
-		
-		boolean wereOnSameRank = ((position | lastDst) & enPassantRank) == (position | lastDst);
-		boolean wereBothPawns = (lastDst | position) == ((lastDst | position) & (pawnStructure));
-		boolean rankShiftIsTwo = (((lastSrc >>> 16) | (lastSrc << 16)) & lastDst) == lastDst;
-		boolean fileIsAdjacent = (BitboardUtils.getAdjacentSquares(position) & lastDst) == lastDst;
-		
-		if (wereOnSameRank && wereBothPawns && rankShiftIsTwo && fileIsAdjacent) {
-			return PieceColor.BLACK.equals(color) ? lastDst >>> 8 : lastDst << 8;
+	
+	public long getValidMoves(long src, Turn mostRecent) {
+		String pieceCode = getPieceCode(src);
+		if (pieceCode != null) {
+			PieceType type = getPieceType(src);
+			long myPieces = isBlack(src) ? getBlackPieces() : getWhitePieces();
+			long allPieces = getBlackPieces() | getWhitePieces();
+			long pawnStructure = pieces.get("bP") | pieces.get("wP");
+			if (PieceType.KING.equals(type)) {
+				return MoveUtils.getValidMoves(src, myPieces, allPieces, pawnStructure, pieceCode, mostRecent) | getAvailableCastles(src);
+			}
+			else {
+				return MoveUtils.getValidMoves(src, myPieces, allPieces, pawnStructure, pieceCode, mostRecent);
+			}
 		}
 		return 0L;
-	}
-	
-	private long getValidKnightMoves(long position, PieceColor color) {
-		long myPieces = PieceColor.BLACK.equals(color) ? getBlackPieces() : getWhitePieces();
-		return BitboardUtils.getKnightSquares(position) & ~myPieces;
-	}
-	
-	private long getValidKingMoves(long position, PieceColor color) {
-		long myPieces = PieceColor.BLACK.equals(color) ? getBlackPieces() : getWhitePieces();
-		return BitboardUtils.getAdjacentSquares(position) & ~myPieces;
+		
 	}
 
-	private long getValidBishopMoves(long position, PieceColor color) {
-		long enemyPieces = PieceColor.BLACK.equals(color) ? getWhitePieces() : getBlackPieces();
-		long allPieces = getAllPieces();
-		long moveset = 0L;
-		long iterator;
-		for (int i=1; i<8; i+=2) {
-			iterator = position;
-			while (BitboardUtils.hasNeighbor(iterator, i)) {
-				iterator = BitboardUtils.getNeighbor(iterator, i);
-				if ((iterator & allPieces) == iterator) {
-					if ((iterator & enemyPieces) == iterator) {
-						moveset |= iterator;
-					}
-					break;
-				}
-				moveset |= iterator;
-			}
-		}
-		return moveset;
+	private boolean isBlack(long position) {
+		return PieceColor.get(getPieceCode(position).charAt(0)).equals(PieceColor.BLACK);
 	}
-
-	private long getValidRookMoves(long position, PieceColor color) {
-		long enemyPieces = PieceColor.BLACK.equals(color) ? getWhitePieces() : getBlackPieces();
-		long allPieces = getAllPieces();
-		long moveset = 0L;
-		long iterator;
-		for (int i=0; i<8; i+=2) {
-			iterator = position;
-			while (BitboardUtils.hasNeighbor(iterator, i)) {
-				iterator = BitboardUtils.getNeighbor(iterator, i);
-				if ((iterator & allPieces) == iterator) {
-					if ((iterator & enemyPieces) == iterator) {
-						moveset |= iterator;
-					}
-					break;
-				}
-				moveset |= iterator;
-			}
-		}
-		return moveset;
-	}
-	
-	private long getValidPawnAttacksWithoutEnPassant(long position, PieceColor color) {
-		long enemyPieces = PieceColor.BLACK.equals(color) ? getWhitePieces() : getBlackPieces();
-		long next;
-		switch (color) {
-		case BLACK:
-			next = BitboardUtils.getNeighbor(position, 4);
-			return (enemyPieces & (BitboardUtils.getRank(position>>>8) & ((next << 1) | (next >>> 1))));
-		case WHITE:
-			next = BitboardUtils.getNeighbor(position, 0);
-			return (enemyPieces & (BitboardUtils.getRank(position<<8) & ((next << 1) | (next >>> 1))));
-		}
-		return 0L;
-	}
-	
-	private long getValidPawnMoves(long position, PieceColor color) {
-		long allPieces = getAllPieces();
-		long moveset = 0L;
-		long next;
-
-		switch (color) {
-		case BLACK:
-			next = BitboardUtils.getNeighbor(position, 4);
-			if ((next & allPieces) == 0L) {
-				moveset |= next;
-				if ((position & BitboardUtils.RANKS[6]) == position && (BitboardUtils.getNeighbor(next, 4) & allPieces) == 0L) {
-					moveset |= BitboardUtils.getNeighbor(next, 4);
-				}
-			}
-			return moveset | getValidPawnAttacksWithoutEnPassant(position, color);
-		case WHITE:
-			next = BitboardUtils.getNeighbor(position, 0);
-			if ((next & allPieces) == 0L) {
-				moveset |= next;
-				if ((position & BitboardUtils.RANKS[1]) == position && (BitboardUtils.getNeighbor(next, 0) & allPieces) == 0L) {
-					moveset |= BitboardUtils.getNeighbor(next, 0);
-				}
-			}
-			return moveset | getValidPawnAttacksWithoutEnPassant(position, color);
-		}
-		return 0L;
-	}
-
 }

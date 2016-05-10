@@ -10,11 +10,11 @@ import com.grapedrink.chessmap.logic.history.Turn;
 
 public class Bitboard extends ChessMapLogicEngine {
 
-	PieceUtils pieces;
+	PieceContainer pieces;
 	MoveHistory history;
 	
 	public Bitboard() {
-		pieces = new PieceUtils();
+		pieces = new PieceContainer();
 		history = new MoveHistory();
 	}
 	
@@ -36,10 +36,13 @@ public class Bitboard extends ChessMapLogicEngine {
 	@Override
 	public Entry<String, String> getPrevMove() throws IndexOutOfBoundsException {
 		Turn prev = history.getPrev();
+		pieces.setMove(prev);
+		/*
 		Map<String, Long> diffs = prev.getDiffs();
 		for (String pieceCode : diffs.keySet()) {
 			pieces.setPieceCode(pieceCode, diffs.get(pieceCode));
 		}
+		 */
 		return prev.getMove();
 	}
 
@@ -101,7 +104,7 @@ public class Bitboard extends ChessMapLogicEngine {
 
 	@Override
 	public void resetBoard() {
-		pieces = new PieceUtils();
+		pieces = new PieceContainer();
 		history = new MoveHistory();
 	}
 
