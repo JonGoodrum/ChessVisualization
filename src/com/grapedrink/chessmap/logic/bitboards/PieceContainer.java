@@ -1,9 +1,7 @@
 package com.grapedrink.chessmap.logic.bitboards;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.grapedrink.chessmap.logic.history.Turn;
 
@@ -46,7 +44,7 @@ public class PieceContainer {
 		a8CastleAllowed = true;
 		h1CastleAllowed = true;
 		h8CastleAllowed = true;
-		pieces = new HashMap<>();
+		resetBoard();
 	}
 	
 	public void setNewGame() {
@@ -60,9 +58,15 @@ public class PieceContainer {
 		}
 	}
 	
+	private void resetBoard() {
+		pieces = new HashMap<>();
+		for(int i=0; i<PIECE_CODES.length; ++i) {
+			pieces.put(PIECE_CODES[i], 0L);
+		}
+	}
+	
 	public long getAllPieces() {
 		return getBlackPieces() | getWhitePieces();
-		
 	}
 
 	public long getBlackPieces() {
@@ -95,42 +99,49 @@ public class PieceContainer {
 		InputValidation.validatePosition(dst);
 		String source = BitboardUtils.getPositionAsString(src);
 		String destination = BitboardUtils.getPositionAsString(dst);
-		boolean playerIsBlack = (src & getBlackPieces()) == src;
-		long previousEnemyPieces = playerIsBlack ? getWhitePieces() : getBlackPieces(); 
-		long currentPieces;
+		boolean isBlack = PieceUtils.isBlack(src, pieces);
+		long prevEnemyPieces = isBlack ? getWhitePieces() : getBlackPieces(); 
 		Turn turn = new Turn(source, destination);
 		
+		replacePiece(src, dst, turn);
+		long currEnemyPieces = isBlack ? getWhitePieces() : getBlackPieces();
+		handleEnPassant(prevEnemyPieces, currEnemyPieces, src, dst, turn);
+		handleCastlingAndPromotion(src, dst, turn);
+		
+		return turn;
+	}
+	
+	private void replacePiece(long src, long dst, Turn turn) {
+		long currentPieces;
 		for (String pieceCode : pieces.keySet()) {
 			currentPieces = pieces.get(pieceCode);
 			if ((currentPieces & dst) == dst) {
-				turn.addDiff(pieceCode, currentPieces);
+				turn.addPrevState(pieceCode, currentPieces);
 				pieces.put(pieceCode, currentPieces ^ dst);
 			}
 			if ((currentPieces & src) == src) {
-				turn.addDiff(pieceCode, currentPieces);
+				turn.addPrevState(pieceCode, currentPieces);
 				pieces.put(pieceCode, (currentPieces ^ src) | dst);
 			}
 		}
-		long currentEnemyPieces = playerIsBlack ? getWhitePieces() : getBlackPieces();
-		handleEnPassant(previousEnemyPieces, currentEnemyPieces, src, dst, turn);
+	}
+	
+	private void handleCastlingAndPromotion(long src, long dst, Turn turn) {
 		handleCastling(src, dst, turn);
-		disableCastlingIfNecessary(src, turn);
-		disableCastlingIfNecessary(dst, turn);
+		disableCastlingIfNecessary(turn);
 		setPromotion(dst);
 		
 		/*
 		 * TODO : turn this into a user prompt, where they can pick any BNRQ piece
 		 */
 		if (isPromotion()) {
-			promotePawn(playerIsBlack ? "bQ" : "wQ", turn);
+			promotePawn(PieceUtils.isBlack(dst, pieces) ? "bQ" : "wQ", turn);
 		}
-		
-		return turn;
 	}
 	
 	public void setMove(Turn turn) {
-		for (String pieceCode : turn.getDiffs().keySet()) {
-			setPieceCode(pieceCode, turn.getDiffs().get(pieceCode));
+		for (String pieceCode : turn.getPrevStates().keySet()) {
+			setPieceCode(pieceCode, turn.getPrevStates().get(pieceCode));
 		}
 		a1CastleAllowed = turn.getA1();
 		a8CastleAllowed = turn.getA8();
@@ -148,28 +159,28 @@ public class PieceContainer {
 
 		if (playerIsBlack && kingWasOnE && pieceMovedToC) {
         	long a8d8 = BitboardUtils.RANKS[7] & (BitboardUtils.FILES[0] | BitboardUtils.FILES[3]);
-        	turn.addDiff("bR", pieces.get("bR"));
+        	turn.addPrevState("bR", pieces.get("bR"));
         	pieces.put("bR", pieces.get("bR") ^ a8d8);
 			a8CastleAllowed = false;
 			h8CastleAllowed = false;
 		}
         else if (playerIsBlack && kingWasOnE && pieceMovedToG) {
         	long f8h8 = BitboardUtils.RANKS[7] & (BitboardUtils.FILES[5] | BitboardUtils.FILES[7]);
-        	turn.addDiff("bR", pieces.get("bR"));
+        	turn.addPrevState("bR", pieces.get("bR"));
         	pieces.put("bR", pieces.get("bR") ^ f8h8);
 			a8CastleAllowed = false;
 			h8CastleAllowed = false;			
 		}
         else if (!playerIsBlack && kingWasOnE && pieceMovedToC) {
         	long a1d1 = BitboardUtils.RANKS[0] & (BitboardUtils.FILES[0] | BitboardUtils.FILES[3]);
-        	turn.addDiff("wR", pieces.get("wR"));
+        	turn.addPrevState("wR", pieces.get("wR"));
         	pieces.put("wR", pieces.get("wR") ^ a1d1);
 			a1CastleAllowed = false;
 			h1CastleAllowed = false;			
 		}
         else if (!playerIsBlack && kingWasOnE && pieceMovedToG) {
         	long f1d1 = BitboardUtils.RANKS[0] & (BitboardUtils.FILES[5] | BitboardUtils.FILES[7]);
-        	turn.addDiff("wR", pieces.get("wR"));
+        	turn.addPrevState("wR", pieces.get("wR"));
         	pieces.put("wR", pieces.get("wR") ^ f1d1);
         	a1CastleAllowed = false;
 			h1CastleAllowed = false;			
@@ -181,7 +192,7 @@ public class PieceContainer {
 			String enemyPawnType = src > dst ? "wP" : "bP";
 			long oldPawnStructure = pieces.get(enemyPawnType);
 			long deadPawn = src > dst ? dst << 8 : dst >>> 8;
-			turn.addDiff(enemyPawnType, oldPawnStructure);
+			turn.addPrevState(enemyPawnType, oldPawnStructure);
 			pieces.put(enemyPawnType, oldPawnStructure ^ deadPawn);
 		}
 	}
@@ -194,42 +205,31 @@ public class PieceContainer {
 	    return pawnJustMoved && pieceMovedDiagonally && enemyPiecesHaveNotChanged;
 	}
 
-	private void disableCastlingIfNecessary(long position, Turn turn) {
-		long a1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[0];
-		long a8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[0];
-		long h1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[7];
-		long h8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[7];
-		long e1 = BitboardUtils.RANKS[0] & BitboardUtils.FILES[4];
-		long e8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[4];
-		
-        if (position == a1) {
-        	turn.setA1();
+	private void disableCastlingIfNecessary(Turn turn) {
+        if ((BitboardUtils.getPositionAsLong("a1") & pieces.get("wR")) == 0L) {
         	a1CastleAllowed = false;
 		}
-		else if (position == a8) {
-			turn.setA8();
-			a8CastleAllowed = false;
+        if ((BitboardUtils.getPositionAsLong("h1") & pieces.get("wR")) == 0L) {
+        	h1CastleAllowed = false;
 		}
-		else if (position == h1) {
-			turn.setH1();
-			h1CastleAllowed = false;
+        if ((BitboardUtils.getPositionAsLong("e1") & pieces.get("wK")) == 0L) {
+        	a1CastleAllowed = false;
+        	h1CastleAllowed = false;
 		}
-		else if (position == h8) {
-			turn.setH8();
-			h8CastleAllowed = false;
+        if ((BitboardUtils.getPositionAsLong("a8") & pieces.get("bR")) == 0L) {
+        	a8CastleAllowed = false;
 		}
-		else if (position == e1) {
-			turn.setA1();
-			turn.setH1();
-			a1CastleAllowed = false;
-			h1CastleAllowed = false;
+        if ((BitboardUtils.getPositionAsLong("h8") & pieces.get("bR")) == 0L) {
+        	h8CastleAllowed = false;
 		}
-		else if (position == e8) {
-			turn.setA8();
-			turn.setH8();
-			a8CastleAllowed = false;
-			h8CastleAllowed = false;
+        if ((BitboardUtils.getPositionAsLong("e8") & pieces.get("bK")) == 0L) {
+        	a8CastleAllowed = false;
+        	h8CastleAllowed = false;
 		}
+        turn.setA1(a1CastleAllowed);
+        turn.setH1(h1CastleAllowed);
+        turn.setA8(a8CastleAllowed);
+        turn.setH8(h8CastleAllowed);
 	}
 	
 	public boolean isPromotion() {
@@ -250,8 +250,8 @@ public class PieceContainer {
 		String pawnCode = String.format("%sP", color);
 		if (isPromotion) {
 			long promotion = rank & pieces.get(String.format("%sP", color));
-			turn.addDiff(pawnCode, pieces.get(pawnCode));
-			turn.addDiff(pieceCode, pieces.get(pieceCode));
+			turn.addPrevState(pawnCode, pieces.get(pawnCode));
+			turn.addPrevState(pieceCode, pieces.get(pieceCode));
 			pieces.put(pawnCode, pieces.get(pawnCode) ^ promotion);
 			pieces.put(pieceCode, pieces.get(pieceCode) | promotion);
 		}
@@ -276,6 +276,16 @@ public class PieceContainer {
 		return null;
 	}
 
+	public Turn addPieceToBoard(String pieceCode, String position) {
+		Turn turn = new Turn(pieceCode, position);
+		//turn.addPrevState(pieceCode, pieces.get(pieceCode));
+		long pos = BitboardUtils.getPositionAsLong(position);
+		replacePiece(pos, pos, turn);
+		pieces.put(pieceCode, pieces.get(pieceCode) | pos);
+		handleCastlingAndPromotion(0L, BitboardUtils.getPositionAsLong(position), turn);
+		return turn;
+	}
+	
 	public void setPieceCode(String pieceCode, long positions) {
 		pieces.put(pieceCode, positions);
 	}
@@ -302,79 +312,60 @@ public class PieceContainer {
 		long f8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[5];
 		long g8 = BitboardUtils.RANKS[7] & BitboardUtils.FILES[6];
 		long moves = 0L;
-		if (!isBlack(position) && isEmpty(b1|c1|d1) && a1CastleAllowed) {
-			if (!isUnderAttack(c1, PieceColor.BLACK) && !isUnderAttack(d1, PieceColor.BLACK) && !isUnderAttack(e1, PieceColor.BLACK)) {
+		
+		if (!PieceUtils.isBlack(position, pieces) && isEmpty(b1|c1|d1) && a1CastleAllowed) {
+			if (!isUnderEnemyAttack(c1, PieceColor.BLACK) && !isUnderEnemyAttack(d1, PieceColor.BLACK) && !isUnderEnemyAttack(e1, PieceColor.BLACK)) {
 				moves |= c1;
 			}
 		}
-		if (!isBlack(position) && isEmpty(f1|g1) && h1CastleAllowed) {
-			if (!isUnderAttack(e1, PieceColor.BLACK) && !isUnderAttack(f1, PieceColor.BLACK) && !isUnderAttack(g1, PieceColor.BLACK)) {
+		if (!PieceUtils.isBlack(position, pieces) && isEmpty(f1|g1) && h1CastleAllowed) {
+			if (!isUnderEnemyAttack(e1, PieceColor.BLACK) && !isUnderEnemyAttack(f1, PieceColor.BLACK) && !isUnderEnemyAttack(g1, PieceColor.BLACK)) {
 				moves |= g1;
 			}
 		}
-		if (isBlack(position)  && isEmpty(b8|c8|d8) && a8CastleAllowed) {
-			if (!isUnderAttack(c8, PieceColor.WHITE) && !isUnderAttack(d8, PieceColor.WHITE) && !isUnderAttack(e8, PieceColor.WHITE)) {
+		if (PieceUtils.isBlack(position, pieces)  && isEmpty(b8|c8|d8) && a8CastleAllowed) {
+			if (!isUnderEnemyAttack(c8, PieceColor.WHITE) && !isUnderEnemyAttack(d8, PieceColor.WHITE) && !isUnderEnemyAttack(e8, PieceColor.WHITE)) {
 				moves |= c8;
 			}
 		}
-		if (isBlack(position)  && isEmpty(f8|g8) && h8CastleAllowed) {
-			if (!isUnderAttack(e8, PieceColor.WHITE) && !isUnderAttack(f8, PieceColor.WHITE) && !isUnderAttack(g8, PieceColor.WHITE)) {
+		if (PieceUtils.isBlack(position, pieces)  && isEmpty(f8|g8) && h8CastleAllowed) {
+			if (!isUnderEnemyAttack(e8, PieceColor.WHITE) && !isUnderEnemyAttack(f8, PieceColor.WHITE) && !isUnderEnemyAttack(g8, PieceColor.WHITE)) {
 				moves |= g8;
 			}
 		}
 		return moves;
 	}
 	
-	private boolean isUnderAttack(long position, PieceColor attacker) {
+	private boolean isUnderEnemyAttack(long position, PieceColor attackingColor) {
 		InputValidation.validatePosition(position);
-		return position == (position & getAllAttacks(attacker));
-	}
-	
-	private long getAllAttacks(PieceColor attacker) {
-		Set<Long> playerPieces = getIndividualPieces(attacker);
-		long attacks = 0L;
-		for (Long position : playerPieces) {
-			attacks |= MoveUtils.getDefendedSquares(position, getAllPieces(), getPieceCode(position));
-		}
-		return attacks;
+		return position == (position & MoveUtils.getAllDefendedSquares(pieces, attackingColor));
 	}
 	
 	private boolean isEmpty(long boardSquares) {
 		return (getAllPieces() & boardSquares) == 0L; 
 	}
 	
-	private Set<Long> getIndividualPieces(PieceColor color) {
-		Set<Long> individualPieces = new HashSet<>();
-		long currentPosition;
-		long myPieces = PieceColor.BLACK.equals(color) ? getBlackPieces() : getWhitePieces();
-		for (int i=0; i<64; ++i) {
-			currentPosition = (1L << i);
-			if ((currentPosition & myPieces) != 0L) {
-				individualPieces.add(currentPosition);
-			}
-		}
-		return individualPieces;
-	}
-	
 	public long getValidMoves(long src, Turn mostRecent) {
 		String pieceCode = getPieceCode(src);
 		if (pieceCode != null) {
 			PieceType type = getPieceType(src);
-			long myPieces = isBlack(src) ? getBlackPieces() : getWhitePieces();
-			long allPieces = getBlackPieces() | getWhitePieces();
-			long pawnStructure = pieces.get("bP") | pieces.get("wP");
 			if (PieceType.KING.equals(type)) {
-				return MoveUtils.getValidMoves(src, myPieces, allPieces, pawnStructure, pieceCode, mostRecent) | getAvailableCastles(src);
+				if (MoveUtils.isInCheck(src, pieces)) {
+					return BitboardUtils.getAdjacentSquares(src) & ~PieceUtils.getFriendlyPieces(src, pieces) & ~MoveUtils.getEnemyTeamDefendedSquares(src, pieces);
+				}
+				return MoveUtils.getValidMoves(src, pieces, mostRecent) | getAvailableCastles(src);
 			}
 			else {
-				return MoveUtils.getValidMoves(src, myPieces, allPieces, pawnStructure, pieceCode, mostRecent);
+				if (MoveUtils.isInCheck(src, pieces)) {
+					return MoveUtils.getCheckBlockingMoves(src, pieces);
+				}
+				return MoveUtils.getValidMoves(src, pieces, mostRecent);
 			}
 		}
 		return 0L;
-		
 	}
 
-	private boolean isBlack(long position) {
-		return PieceColor.get(getPieceCode(position).charAt(0)).equals(PieceColor.BLACK);
+	public long getTotalDefense(PieceColor color) {
+		return MoveUtils.getAllDefendedSquares(pieces, color);
 	}
 }

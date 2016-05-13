@@ -1,7 +1,7 @@
 package com.grapedrink.chessmap.game;
 
 import com.grapedrink.chessmap.logic.bitboards.Bitboard;
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 
 public class Game {
@@ -12,7 +12,7 @@ public class Game {
             @SuppressWarnings("unused")
 			public void run() {
             	ChessMapLogicEngine logic = new Bitboard();
-            	UserInterfaceFactory inputListener = new UserInterfaceFactory(logic);
+            	GUIReferences inputListener = new GUIReferences(logic);
             }
         });
 	  }

@@ -9,19 +9,21 @@ import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.grapedrink.chessmap.game.ChessMapLogicEngine;
 import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.logic.bitboards.PieceUtils;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 public class PieceDragListener extends MouseAdapter {
 	
-	private UserInterfaceFactory userInterfaceFactory;
+	private GUIReferences guirefs;
 	private static Icon draggedPiece;
 	
-	public PieceDragListener(UserInterfaceFactory userInterfaceFactory) {
-		this.userInterfaceFactory = userInterfaceFactory;
+	public PieceDragListener(GUIReferences userInterfaceFactory) {
+		this.guirefs = userInterfaceFactory;
 	}
 	
 	@Override
@@ -32,8 +34,10 @@ public class PieceDragListener extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent e) {
     	resetColors();
+    	guirefs.paintSquares();
+
     	if (mouseIsOverChessBoard(e) && draggedPiece != null) {
-    		if (getButtonThatWasClicked(e).equals(getButtonUnderMouse(e))) {
+    		if (pressedButtonEqualsReleasedButton(e)) {
     		    highlightValidMoves(e);
         		resetDraggedIcon(e);
     		}
@@ -42,16 +46,29 @@ public class PieceDragListener extends MouseAdapter {
     		}
     		else {
     			dropDraggedIcon(e);
+    			if (PieceUtils.isPieceCode(getButtonThatWasClicked(e).getName())) {
+    				logic().addPiece(getButtonThatWasClicked(e).getName(), getButtonUnderMouse(e).getName());
+    			}
+    			else {
+    				logic().setMove(getButtonThatWasClicked(e).getName(), getButtonUnderMouse(e).getName());
+    			}
     		}
     	}
     	else {
     		resetDraggedIcon(e);
     	}
+    	guirefs.enableNextPrevMoveButtons();
+    	
+    	// TODO : find a better home for this (in this function somewhere)
 	}
+    
+    private boolean pressedButtonEqualsReleasedButton(MouseEvent e) {
+    	return getButtonThatWasClicked(e).equals(getButtonUnderMouse(e));
+    }
     
     private void highlightValidMoves(MouseEvent e) {
     	Iterable<String> validMoves = logic().getValidMoves(getButtonThatWasClicked(e).getName());
-    	userInterfaceFactory.getChessBoardPanel().highlight(validMoves, GuiConstants.Colors.YELLOW);
+    	guirefs.getChessBoardPanel().highlight(validMoves, GuiConstants.Colors.YELLOW);
 	}
 
 	private void putIcon(JButton button) {
@@ -64,7 +81,7 @@ public class PieceDragListener extends MouseAdapter {
     }
     
     private void resetColors() {
-    	userInterfaceFactory.getChessBoardPanel().resetColor();
+    	guirefs.getChessBoardPanel().resetColor();
     }
     
     private void dropDraggedIcon(MouseEvent e) {
@@ -72,7 +89,7 @@ public class PieceDragListener extends MouseAdapter {
     }
     
     private boolean gameIsInProgress() {
-    	return !userInterfaceFactory.getFreePlayCheckBox().isSelected();
+    	return !guirefs.getFreePlayCheckBox().isSelected();
     }
     
     private void executePlayerTurn(MouseEvent e) {
@@ -81,15 +98,19 @@ public class PieceDragListener extends MouseAdapter {
     	if (logic().isValidMove(source, destination)) {
     		logic().setMove(source, destination);
     		dropDraggedIcon(e);
-    		userInterfaceFactory.getChessBoardPanel().setBoard(logic().getBoard());
+    		guirefs.getChessBoardPanel().setBoard(logic().getBoard());
     	}
     	else {
     		resetDraggedIcon(e);
     	}
+    	if (logic().getWinner() != null) {
+    		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Mate");
+    		JOptionPane.showMessageDialog(null, String.format("Checkmate. %s wins", logic().getWinner()));
+    	}
     }
     
     private ChessMapLogicEngine logic() {
-    	return userInterfaceFactory.getChessMapLogicEngine();
+    	return guirefs.getChessMapLogicEngine();
     }
     
     private void dragIcon(MouseEvent e) {
@@ -103,12 +124,12 @@ public class PieceDragListener extends MouseAdapter {
     }
     
     private boolean mouseIsOverChessBoard(MouseEvent e) {
-    	Point p = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), (Component) userInterfaceFactory.getChessBoardPanel());
+    	Point p = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), (Component) guirefs.getChessBoardPanel());
     	JButton buttonUnderMouse = getButtonUnderMouse(e);
     	if (buttonUnderMouse == null) {
     		return false;
     	}
-    	Rectangle bounds = userInterfaceFactory.getChessBoardPanel().getBounds();
+    	Rectangle bounds = guirefs.getChessBoardPanel().getBounds();
     	return (p.x > 0 && p.y < bounds.getMaxX()) && (p.y > 0 && p.y < bounds.getMaxY());
     }
     
@@ -118,14 +139,14 @@ public class PieceDragListener extends MouseAdapter {
 
     /* returns null if not a jbutton */
     private JButton getButtonUnderMouse(MouseEvent e) {
-    	Point p = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), (Component) userInterfaceFactory.getChessBoardPanel());    	
+    	Point p = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), (Component) guirefs.getChessBoardPanel());    	
     	Component component;
     	if (p.x > 0) {
-        	component = userInterfaceFactory.getChessBoardPanel().getComponentAt(p);
+        	component = guirefs.getChessBoardPanel().getComponentAt(p);
     	}
     	else {
-    		p = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), (Component) userInterfaceFactory.getExtraPiecesPanel());
-    		component = userInterfaceFactory.getExtraPiecesPanel().getActivePanel().getComponentAt(p);
+    		p = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), (Component) guirefs.getExtraPiecesPanel());
+    		component = guirefs.getExtraPiecesPanel().getActivePanel().getComponentAt(p);
     	}
     	return component instanceof JButton ? (JButton) component : null;
     }

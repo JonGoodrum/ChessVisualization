@@ -4,18 +4,18 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 import com.grapedrink.chessmap.ui.io.NewGameButton;
 import com.grapedrink.chessmap.ui.io.NextMoveButton;
-import com.grapedrink.chessmap.ui.io.PreviousMoveButton;
+import com.grapedrink.chessmap.ui.io.PrevMoveButton;
 import com.grapedrink.chessmap.ui.io.RotateBoardButton;
 
 @SuppressWarnings("serial")
 public class ControlPanel extends JPanel {
 
-	private UserInterfaceFactory userInterfaceFactory;
+	private GUIReferences userInterfaceFactory;
 	
-	public ControlPanel(UserInterfaceFactory userInterfaceFactory) {
+	public ControlPanel(GUIReferences userInterfaceFactory) {
 		this.userInterfaceFactory = userInterfaceFactory;
 		initializeLayout();
 		initializeButtons();
@@ -29,10 +29,13 @@ public class ControlPanel extends JPanel {
 	
 	private void initializeButtons() {
 		initializeNewGameButton();
+		initializeResetBoardButton();
 		initializeRotateBoardButton();
 		initializeFreePlayCheckBox();
-		initializePreviousMoveButton();
+		initializePrevMoveButton();
 		initializeNextMoveButton();
+		initializeTotalDefenseButton();
+		initializeCheckBoxPanel();
 	}
 	
 	private void initializeFreePlayCheckBox() {
@@ -40,18 +43,32 @@ public class ControlPanel extends JPanel {
 	}
 	
 	private void initializeNewGameButton() {
-		super.add(new NewGameButton(userInterfaceFactory));
+		super.add(userInterfaceFactory.getNewGameButton());
 	}
 	
 	private void initializeRotateBoardButton() {
-		super.add(new RotateBoardButton(userInterfaceFactory));
+		super.add(userInterfaceFactory.getRotateBoardButton());
 	}
 	
-	private void initializePreviousMoveButton() {
-		super.add(new PreviousMoveButton(userInterfaceFactory));
+	private void initializeResetBoardButton() {
+		super.add(userInterfaceFactory.getResetBoardButton());
+	}
+	
+	private void initializePrevMoveButton() {
+		super.add(userInterfaceFactory.getPrevMoveButton());
 	}
 	
 	private void initializeNextMoveButton() {
-		super.add(new NextMoveButton(userInterfaceFactory));
+		super.add(userInterfaceFactory.getNextMoveButton());
 	}
+	
+	private void initializeTotalDefenseButton() {
+		super.add(userInterfaceFactory.getTotalDefenseButton());
+	}
+	
+	private void initializeCheckBoxPanel() {
+		super.add(userInterfaceFactory.getCheckBoxPanel());
+	}
+	
+	
 }

@@ -5,15 +5,15 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 
 import com.grapedrink.chessmap.gui.controlpanel.ControlPanel;
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
 
-	UserInterfaceFactory userInterfaceFactory;
+	GUIReferences userInterfaceFactory;
 	ControlPanel controlPanel;
 	
-	public MainWindow(UserInterfaceFactory userInterfaceFactory) {
+	public MainWindow(GUIReferences userInterfaceFactory) {
 		super("ChessMap");
 		super.setLayout(new BorderLayout());
 		super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

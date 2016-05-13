@@ -6,15 +6,16 @@ import java.util.Set;
 //	https://chessprogramming.wikispaces.com/Subtracting+a+Rook+from+a+Blocking+Piece
 public class BitboardUtils {
 	
+	public static final long UNIVERSE    = 0xFFFFFFFFFFFFFFFFL;
 	public static final long BORDER      = 0xFF818181818181FFL;
-	public static final long BL_BORDER   = 0x80808080808080FFL;
-	public static final long BR_BORDER   = 0x01010101010101FFL;
-	public static final long TL_BORDER   = 0xFF80808080808080L;
-	public static final long TR_BORDER   = 0xFF01010101010101L;
 	public static final long L_BORDER    = 0x8080808080808080L;
 	public static final long R_BORDER    = 0x0101010101010101L;
 	public static final long T_BORDER    = 0xFF00000000000000L;
 	public static final long B_BORDER    = 0x00000000000000FFL;
+	public static final long BL_BORDER   = 0x80808080808080FFL;
+	public static final long BR_BORDER   = 0x01010101010101FFL;
+	public static final long TL_BORDER   = 0xFF80808080808080L;
+	public static final long TR_BORDER   = 0xFF01010101010101L;
 	
 	/**
 	 * The upward diagonals, arranged from left to right.
@@ -204,6 +205,10 @@ public class BitboardUtils {
 		return 0L;
 	}
 	
+	public static long getRaystar(long position) throws IllegalArgumentException {
+		return position ^ (getRank(position) | getFile(position) | getDiagonal(position) | getAntiDiagonal(position));
+	}
+	
 	/**
 	 * Returns the 3-8 squares adjacent to, but not including, position.
 	 * 
@@ -321,7 +326,11 @@ public class BitboardUtils {
 		System.out.println(binaryBoard.toString());
 	}
 
-	public static Set<String> getPositions(long positions) {
+	public static Set<String> getAllPositionsAsStrings() {
+		return getPositionsAsStrings(UNIVERSE);
+	}
+	
+	public static Set<String> getPositionsAsStrings(long positions) {
 		Set<String> set = new HashSet<>();
 		long pos;
 		for (int i=0; i<64; ++i) {
@@ -332,5 +341,30 @@ public class BitboardUtils {
 		}
 		return set;
 	}
+	
+	public static long getConnectingRay(long a, long b) {
+		if ((a & getRank(b)) == a) {
+			return getRank(a);
+		}
+		else if ((a & getFile(b)) == a) {
+			return getFile(a);
+		}
+		else if ((a & getDiagonal(b)) == a) {
+			return getDiagonal(a);
+		}
+		else if ((a & getAntiDiagonal(b)) == a) {
+			return getAntiDiagonal(a);
+		}
+		return 0L;
+	}
+
+	public static Set<Long> getPositionsAsLongs(long positions) {
+		Set<Long> set = new HashSet<Long>();
+		for (String pos : getPositionsAsStrings(positions)) {
+			set.add(getPositionAsLong(pos));
+		}
+		return set;
+	}
+
 	
 }

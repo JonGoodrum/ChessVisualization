@@ -27,9 +27,14 @@ public class Bitboard extends ChessMapLogicEngine {
 	@Override
 	public Entry<String, String> getNextMove() throws IndexOutOfBoundsException {
 		Map.Entry<String, String> next = history.getNext().getMove();
-		long src = BitboardUtils.getPositionAsLong(next.getKey());
-		long dst = BitboardUtils.getPositionAsLong(next.getValue());
-		pieces.setMove(src, dst);
+		if (PieceUtils.isPieceCode(next.getKey())) {
+			pieces.addPieceToBoard(next.getKey(), next.getValue());
+		}
+		else {
+			long src = BitboardUtils.getPositionAsLong(next.getKey());
+			long dst = BitboardUtils.getPositionAsLong(next.getValue());
+			pieces.setMove(src, dst);
+		}
 		return next;
 	}
 
@@ -37,12 +42,6 @@ public class Bitboard extends ChessMapLogicEngine {
 	public Entry<String, String> getPrevMove() throws IndexOutOfBoundsException {
 		Turn prev = history.getPrev();
 		pieces.setMove(prev);
-		/*
-		Map<String, Long> diffs = prev.getDiffs();
-		for (String pieceCode : diffs.keySet()) {
-			pieces.setPieceCode(pieceCode, diffs.get(pieceCode));
-		}
-		 */
 		return prev.getMove();
 	}
 
@@ -80,7 +79,7 @@ public class Bitboard extends ChessMapLogicEngine {
 	public Iterable<String> getValidMoves(String source) {
 		InputValidation.validatePosition(source);
 		long src = BitboardUtils.getPositionAsLong(source);
-		return BitboardUtils.getPositions(pieces.getValidMoves(src, history.mostRecent()));
+		return BitboardUtils.getPositionsAsStrings(pieces.getValidMoves(src, history.mostRecent()));
 	}
 
 	@Override
@@ -101,6 +100,12 @@ public class Bitboard extends ChessMapLogicEngine {
 	public void loadGame(Map<Integer, Entry<String, String>> game) {
 		// TODO Auto-generated method stub
 	}
+	
+	@Override
+	public void addPiece(String pieceCode, String position) {
+		Turn turn = pieces.addPieceToBoard(pieceCode, position);
+		history.addMove(turn);
+	}
 
 	@Override
 	public void resetBoard() {
@@ -108,4 +113,39 @@ public class Bitboard extends ChessMapLogicEngine {
 		history = new MoveHistory();
 	}
 
+	@Override
+	public PieceColor getActivePlayer() {
+		return history.isBlacksTurn() ? PieceColor.BLACK : PieceColor.WHITE;
+	}
+
+	@Override
+	public Iterable<String> getTotalDefense(PieceColor color) {
+		long totalDefense = pieces.getTotalDefense(color);
+		return BitboardUtils.getPositionsAsStrings(totalDefense);
+	}
+
+	@Override
+	public PieceColor getWinner() {
+		long availableMoves = 0L;
+		Iterable<Long> blackPieces = BitboardUtils.getPositionsAsLongs(pieces.getBlackPieces());
+		for (long piece : blackPieces) {
+			if ((availableMoves = pieces.getValidMoves(piece, null)) != 0L) {
+				break;
+			}
+        }
+		if (availableMoves == 0L) {
+			return PieceColor.WHITE;
+		}
+		
+		Iterable<Long> whitePieces = BitboardUtils.getPositionsAsLongs(pieces.getWhitePieces());
+		for (long piece : whitePieces) {
+			if ((availableMoves = pieces.getValidMoves(piece, null)) != 0L) {
+				break;
+			}
+        }
+		if (availableMoves == 0L) {
+			return PieceColor.BLACK;
+		}
+		return null;
+	}
 }

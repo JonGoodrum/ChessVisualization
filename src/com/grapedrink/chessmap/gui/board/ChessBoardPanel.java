@@ -9,18 +9,17 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 
 import com.grapedrink.chessmap.gui.icons.IconHelper;
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 import com.grapedrink.chessmap.ui.io.PieceDragListener;
 
 @SuppressWarnings("serial")
 public class ChessBoardPanel extends JPanel {
 
-	private IconHelper icons;
 	private boolean rank1AtBottom;
 	private Map<String, ChessBoardSquare> board;
-	private UserInterfaceFactory userInterfaceFactory;
+	private GUIReferences userInterfaceFactory;
 	
-	public ChessBoardPanel(UserInterfaceFactory userInterfaceFactory) {
+	public ChessBoardPanel(GUIReferences userInterfaceFactory) {
 		this.userInterfaceFactory = userInterfaceFactory;
 		initializeLayout();
 		initializeBoard();
@@ -37,7 +36,6 @@ public class ChessBoardPanel extends JPanel {
 		String position;
 		rank1AtBottom = true;
 		board = new HashMap<>();
-		icons = new IconHelper(userInterfaceFactory);
 		PieceDragListener pieceDragListener = new PieceDragListener(userInterfaceFactory);
 		
 		for (int rank = 8; rank > 0; --rank) {
@@ -51,10 +49,14 @@ public class ChessBoardPanel extends JPanel {
 	}
 	
 	public void setPiece(String position, String pieceCode) {
-		board.get(position).setIcon(icons.get(pieceCode));
+		board.get(position).setIcon(getIcons().get(pieceCode));
 		super.revalidate();
 	}
 	
+	private IconHelper getIcons() {
+		return userInterfaceFactory.getIconHelper();
+	}
+
 	public void movePiece(String srcSquare, String destSquare) {
 		Icon srcIcon = board.get(srcSquare).getIcon();
 		board.get(destSquare).setIcon(srcIcon);

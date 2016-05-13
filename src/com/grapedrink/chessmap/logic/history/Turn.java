@@ -18,14 +18,12 @@ public class Turn {
 	Map<String, Long> pieceDiffs;
 	
 	public Turn(String src, String dst) {
-		InputValidation.validatePosition(src);
-		InputValidation.validatePosition(dst);
 		this.src = src;
 		this.dst = dst;
 		pieceDiffs = new HashMap<>();
 	}
 	
-	public void addDiff(String pieceCode, long positions) {
+	public void addPrevState(String pieceCode, long positions) {
 		InputValidation.validatePieceCode(pieceCode);
 		pieceDiffs.put(pieceCode, positions);
 	}
@@ -42,7 +40,7 @@ public class Turn {
 		return new AbstractMap.SimpleEntry<String, String>(src, dst);
 	}
 	
-	public Map<String, Long> getDiffs() {
+	public Map<String, Long> getPrevStates() {
 		return pieceDiffs;
 	}
 
@@ -62,19 +60,19 @@ public class Turn {
 		return h8;
 	}
 
-	public void setA1() {
-		a1 = true;
+	public void setA1(boolean val) {
+		a1 = val;
 	}
 	
-	public void setA8() {
-		a8 = true;
+	public void setA8(boolean val) {
+		a8 = val;
 	}
 	
-	public void setH1() {
-		h1 = true;
+	public void setH1(boolean val) {
+		h1 = val;
 	}
 
-	public void setH8() {
-		h8 = true;
+	public void setH8(boolean val) {
+		h8 = val;
 	}
 }

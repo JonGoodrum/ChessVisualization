@@ -6,14 +6,14 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 
 import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 public class IconHelper {
 	
-	private UserInterfaceFactory userInterfaceFactory;
+	private GUIReferences userInterfaceFactory;
 	private Map<String, ImageIcon> icons;
 	
-	public IconHelper(UserInterfaceFactory userInterfaceFactory) {
+	public IconHelper(GUIReferences userInterfaceFactory) {
 		this.userInterfaceFactory = userInterfaceFactory;
 		this.icons = new HashMap<>();
 		String[] pieces = {"bB", "bK", "bN", "bP", "bQ", "bR", "wB", "wK", "wN", "wP", "wQ", "wR"};

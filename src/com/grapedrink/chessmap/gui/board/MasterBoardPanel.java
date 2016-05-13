@@ -2,15 +2,15 @@ package com.grapedrink.chessmap.gui.board;
 
 import javax.swing.JPanel;
 
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 
 @SuppressWarnings("serial")
 public class MasterBoardPanel extends JPanel {
 	
-	private UserInterfaceFactory inputManager;
+	private GUIReferences inputManager;
 	
-	public MasterBoardPanel(UserInterfaceFactory inputManager) {
+	public MasterBoardPanel(GUIReferences inputManager) {
 		this.inputManager = inputManager;
 		this.initializeComponents();
 	}

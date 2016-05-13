@@ -2,6 +2,8 @@ package com.grapedrink.chessmap.game;
 
 import java.util.Map;
 
+import com.grapedrink.chessmap.logic.bitboards.PieceColor;
+
 /*
  * TODO : implement painting/teaching NON-ABSTRACT functions such as:
  *            getValidMoves()
@@ -135,4 +137,20 @@ public abstract class ChessMapLogicEngine {
 	
 	
 	public abstract void resetBoard();
+
+	
+	public abstract void addPiece(String pieceCode, String position);
+
+
+	public abstract PieceColor getActivePlayer();
+
+
+	public abstract Iterable<String> getTotalDefense(PieceColor activePlayer);
+
+	/**
+	 * Returns null if nobody has won.
+	 * 
+	 * @return
+	 */
+	public abstract PieceColor getWinner();
 }

@@ -6,30 +6,38 @@ import java.util.Map;
 
 import javax.swing.JButton;
 
-import com.grapedrink.chessmap.ui.factory.UserInterfaceFactory;
+import com.grapedrink.chessmap.logic.bitboards.PieceUtils;
+import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 @SuppressWarnings("serial")
 public class NextMoveButton extends JButton {
 
-	public NextMoveButton(UserInterfaceFactory userInterfaceFactory) {
+	public NextMoveButton(GUIReferences userInterfaceFactory) {
 		super("Next Move");
+		super.setEnabled(false);
 		this.addActionListener(new NextMoveActionListener(userInterfaceFactory));
 	}
 	
 	private class NextMoveActionListener implements ActionListener {
 
-		private UserInterfaceFactory userInterfaceFactory;
+		private GUIReferences guirefs;
 		
-		protected NextMoveActionListener(UserInterfaceFactory userInterfaceFactory) {
-			this.userInterfaceFactory = userInterfaceFactory;
+		protected NextMoveActionListener(GUIReferences userInterfaceFactory) {
+			this.guirefs = userInterfaceFactory;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Map.Entry<String, String> nextMove = userInterfaceFactory.getChessMapLogicEngine().getNextMove();
-			if (nextMove != null) {
-				userInterfaceFactory.getChessBoardPanel().movePiece(nextMove.getKey(), nextMove.getValue());
+			guirefs.getChessBoardPanel().resetColor();
+			Map.Entry<String, String> nextMove = guirefs.getChessMapLogicEngine().getNextMove();
+			if (PieceUtils.isPieceCode(nextMove.getKey())) {
+				guirefs.getChessBoardPanel().setPiece(nextMove.getKey(), nextMove.getValue());
 			}
+			else {
+				guirefs.getChessBoardPanel().movePiece(nextMove.getKey(), nextMove.getValue());
+			}
+	    	guirefs.paintSquares();
+			guirefs.enableNextPrevMoveButtons();
 		}
 	}
 }
