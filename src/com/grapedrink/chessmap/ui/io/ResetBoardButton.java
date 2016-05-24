@@ -25,7 +25,7 @@ public class ResetBoardButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			userInterfaceFactory.getChessBoardPanel().resetColor();
+			userInterfaceFactory.getChessBoardPanel().resetColors();
 			userInterfaceFactory.getChessMapLogicEngine().resetBoard();
 			userInterfaceFactory.getChessBoardPanel().resetBoard();
 			userInterfaceFactory.enableNextPrevMoveButtons();

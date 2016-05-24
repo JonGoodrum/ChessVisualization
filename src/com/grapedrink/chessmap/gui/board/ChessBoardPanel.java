@@ -8,7 +8,9 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
+import com.grapedrink.chessmap.gui.colors.SquareColor;
 import com.grapedrink.chessmap.gui.icons.IconHelper;
+import com.grapedrink.chessmap.logic.bitboards.PieceColor;
 import com.grapedrink.chessmap.ui.factory.GUIReferences;
 import com.grapedrink.chessmap.ui.io.PieceDragListener;
 
@@ -123,15 +125,22 @@ public class ChessBoardPanel extends JPanel {
 		super.revalidate();
 	}
 
-	public void resetColor() {
+	public void resetColors() {
 		for (ChessBoardSquare square : board.values()) {
 			square.resetColor();
+			square.resetBorder();
 		}
 	}
 	
-	public void highlight(Iterable<String> validMoves, Color color) {
-		for (String position : validMoves) {
-			board.get(position).setColor(color);
+	public void highlight(Iterable<String> positions, SquareColor squareColor, PieceColor pieceColor) {
+		for (String position : positions) {
+			board.get(position).setColor(squareColor, pieceColor);
+		}
+	}
+
+	public void highlightBorders(Iterable<String> positions) {
+		for (String position : positions) {
+			board.get(position).setBorderPainted(true);
 		}
 	}
 }

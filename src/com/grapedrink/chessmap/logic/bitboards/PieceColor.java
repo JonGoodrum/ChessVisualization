@@ -1,6 +1,7 @@
 package com.grapedrink.chessmap.logic.bitboards;
 
 public enum PieceColor {
+	BOTH,
 	BLACK,
 	WHITE;
 	

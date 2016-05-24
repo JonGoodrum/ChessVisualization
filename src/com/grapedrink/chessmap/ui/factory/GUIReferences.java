@@ -16,7 +16,6 @@ import com.grapedrink.chessmap.ui.io.NextMoveButton;
 import com.grapedrink.chessmap.ui.io.PrevMoveButton;
 import com.grapedrink.chessmap.ui.io.ResetBoardButton;
 import com.grapedrink.chessmap.ui.io.RotateBoardButton;
-import com.grapedrink.chessmap.ui.io.TotalDefenseButton;
 
 public class GUIReferences {
 
@@ -33,7 +32,6 @@ public class GUIReferences {
 	private RotateBoardButton rotateBoardButton;
 	private NewGameButton newGameButton;
 	private ResetBoardButton resetBoardButton;
-	private TotalDefenseButton totalDefenseButton;
 	private IconHelper iconHelper;
 	
 	// Make sure you instantiate items from inside-out,
@@ -41,7 +39,6 @@ public class GUIReferences {
 	public GUIReferences(ChessMapLogicEngine chessMapLogicEngine) {
 		checkBoxPanel = new CheckBoxPanel(this);
 		iconHelper = new IconHelper(this);
-		totalDefenseButton = new TotalDefenseButton(this);
 		resetBoardButton = new ResetBoardButton(this);
 		nextMoveButton = new NextMoveButton(this);
 		prevMoveButton = new PrevMoveButton(this);
@@ -109,16 +106,16 @@ public class GUIReferences {
 		return this.resetBoardButton;
 	}
 
-	public TotalDefenseButton getTotalDefenseButton() {
-		return this.totalDefenseButton;
-	}
-
 	public IconHelper getIconHelper() {
 		return this.iconHelper;
 	}
 
 	public CheckBoxPanel getCheckBoxPanel() {
 		return this.checkBoxPanel;
+	}
+
+	public void resetColors() {
+		this.chessBoardPanel.resetColors();
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.grapedrink.chessmap.logic.bitboards;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -119,7 +120,7 @@ public class Bitboard extends ChessMapLogicEngine {
 	}
 
 	@Override
-	public Iterable<String> getTotalDefense(PieceColor color) {
+	public Collection<String> getTotalDefense(PieceColor color) {
 		long totalDefense = pieces.getTotalDefense(color);
 		return BitboardUtils.getPositionsAsStrings(totalDefense);
 	}

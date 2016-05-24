@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.grapedrink.chessmap.logic.engine.BoardUtils;
 import com.grapedrink.chessmap.logic.history.Turn;
 
 public class MoveUtils {
@@ -94,7 +95,7 @@ public class MoveUtils {
 		long iterator = myKing;
 		long allPieces = PieceUtils.getAllPieces(pieces);
 		int direction = getConnectingDirection(myKing, position);
-		while ((iterator = BitboardUtils.getNeighbor(iterator, direction)) != position) {
+		while ((iterator = BoardUtils.getNeighbor(iterator, direction)) != position) {
 			if ((iterator & allPieces) == iterator) {
 				System.out.println("exit 2");
 				return false;
@@ -103,8 +104,8 @@ public class MoveUtils {
 		
 		PieceColor enemyColor = PieceUtils.isBlack(position, pieces) ? PieceColor.WHITE : PieceColor.BLACK;
 		long attackersThatCanPin = PieceUtils.getSlidingPieces(pieces, enemyColor);
-		while (BitboardUtils.hasNeighbor(iterator, direction)) {
-			iterator = BitboardUtils.getNeighbor(iterator, direction);
+		while (BoardUtils.hasNeighbor(iterator, direction)) {
+			iterator = BoardUtils.getNeighbor(iterator, direction);
 			if ((iterator & attackersThatCanPin) == iterator) {
 				System.out.println("exit 3");
 				return (getMyDefendedSquares(iterator, pieces) & position) != 0L;
@@ -156,14 +157,14 @@ public class MoveUtils {
 		
 		long moveset = 0L;
 		
-		long nextSquare = BitboardUtils.getNeighbor(position, direction);
+		long nextSquare = BoardUtils.getNeighbor(position, direction);
 		if ((nextSquare & allPieces) == 0L) {
 			moveset |= nextSquare;
 			long staringRank = direction == 0 ? BitboardUtils.RANKS[1] : BitboardUtils.RANKS[6];
 			boolean pawnOnStartingRank = (staringRank & position) == position;
-			boolean doubleJumpSquareIsFree = (BitboardUtils.getNeighbor(nextSquare, direction) & allPieces) == 0L;
+			boolean doubleJumpSquareIsFree = (BoardUtils.getNeighbor(nextSquare, direction) & allPieces) == 0L;
 			if (pawnOnStartingRank && doubleJumpSquareIsFree) {
-				moveset |= BitboardUtils.getNeighbor(nextSquare, direction);
+				moveset |= BoardUtils.getNeighbor(nextSquare, direction);
 			}
 		}
 		
@@ -232,8 +233,8 @@ public class MoveUtils {
 		long iterator;
 		for (int i=rayIndex; i<8; i+=2) {
 			iterator = position;
-			while (BitboardUtils.hasNeighbor(iterator, i)) {
-				iterator = BitboardUtils.getNeighbor(iterator, i);
+			while (BoardUtils.hasNeighbor(iterator, i)) {
+				iterator = BoardUtils.getNeighbor(iterator, i);
 				moveset |= iterator;
 				if ((iterator & allPieces) == iterator) {
 					break;

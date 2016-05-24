@@ -28,7 +28,7 @@ public class NextMoveButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			guirefs.getChessBoardPanel().resetColor();
+			guirefs.getChessBoardPanel().resetColors();
 			Map.Entry<String, String> nextMove = guirefs.getChessMapLogicEngine().getNextMove();
 			if (PieceUtils.isPieceCode(nextMove.getKey())) {
 				guirefs.getChessBoardPanel().setPiece(nextMove.getKey(), nextMove.getValue());

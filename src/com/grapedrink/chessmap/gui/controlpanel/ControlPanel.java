@@ -34,7 +34,6 @@ public class ControlPanel extends JPanel {
 		initializeFreePlayCheckBox();
 		initializePrevMoveButton();
 		initializeNextMoveButton();
-		initializeTotalDefenseButton();
 		initializeCheckBoxPanel();
 	}
 	
@@ -60,10 +59,6 @@ public class ControlPanel extends JPanel {
 	
 	private void initializeNextMoveButton() {
 		super.add(userInterfaceFactory.getNextMoveButton());
-	}
-	
-	private void initializeTotalDefenseButton() {
-		super.add(userInterfaceFactory.getTotalDefenseButton());
 	}
 	
 	private void initializeCheckBoxPanel() {

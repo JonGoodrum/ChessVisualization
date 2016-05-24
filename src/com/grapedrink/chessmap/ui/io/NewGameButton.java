@@ -25,7 +25,7 @@ public class NewGameButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			guirefs.getChessBoardPanel().resetColor();
+			guirefs.getChessBoardPanel().resetColors();
 			guirefs.getFreePlayCheckBox().setSelected(false);
 			guirefs.getChessMapLogicEngine().setNewGame();
             guirefs.getChessBoardPanel().setBoard(guirefs.getChessMapLogicEngine().getBoard());

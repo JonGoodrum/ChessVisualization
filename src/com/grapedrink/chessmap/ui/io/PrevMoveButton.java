@@ -27,7 +27,7 @@ public class PrevMoveButton extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			guirefs.getChessBoardPanel().resetColor();
+			guirefs.getChessBoardPanel().resetColors();
 			guirefs.getChessMapLogicEngine().getPrevMove();
 			guirefs.getChessBoardPanel().setBoard(guirefs.getChessMapLogicEngine().getBoard());
 			guirefs.enableNextPrevMoveButtons();

@@ -1,5 +1,6 @@
 package com.grapedrink.chessmap.game;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.grapedrink.chessmap.logic.bitboards.PieceColor;
@@ -145,7 +146,7 @@ public abstract class ChessMapLogicEngine {
 	public abstract PieceColor getActivePlayer();
 
 
-	public abstract Iterable<String> getTotalDefense(PieceColor activePlayer);
+	public abstract Collection<String> getTotalDefense(PieceColor activePlayer);
 
 	/**
 	 * Returns null if nobody has won.
