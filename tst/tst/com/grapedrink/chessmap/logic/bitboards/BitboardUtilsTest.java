@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.grapedrink.chessmap.logic.bitboards.BitboardUtils;
+import com.grapedrink.chessmap.logic.utils.BoardConstants;
+import com.grapedrink.chessmap.logic.utils.BoardUtils;
+import com.grapedrink.chessmap.logic.utils.ConvertUtils;
 
 public class BitboardUtilsTest {
 	
@@ -19,12 +21,12 @@ public class BitboardUtilsTest {
 	
 	@Test
 	public void test_getPositionAsLong() {
-		assertEquals(a1Long, BitboardUtils.getPositionAsLong(a1String));
-		assertEquals(a8Long, BitboardUtils.getPositionAsLong(a8String));
-		assertEquals(h1Long, BitboardUtils.getPositionAsLong(h1String));
-		assertEquals(h8Long, BitboardUtils.getPositionAsLong(h8String));
+		assertEquals(a1Long, ConvertUtils.getPositionAsLong(a1String));
+		assertEquals(a8Long, ConvertUtils.getPositionAsLong(a8String));
+		assertEquals(h1Long, ConvertUtils.getPositionAsLong(h1String));
+		assertEquals(h8Long, ConvertUtils.getPositionAsLong(h8String));
 		try {
-			BitboardUtils.getPositionAsLong(null);
+			ConvertUtils.getPositionAsLong(null);
 			fail("Exception not caught with invalid input");
 		}
 		catch (IllegalArgumentException e) {
@@ -33,12 +35,12 @@ public class BitboardUtilsTest {
 	
 	@Test
 	public void test_getPositionAsString() {
-		assertEquals(a1String, BitboardUtils.getPositionAsString(a1Long));
-		assertEquals(a8String, BitboardUtils.getPositionAsString(a8Long));
-		assertEquals(h1String, BitboardUtils.getPositionAsString(h1Long));
-		assertEquals(h8String, BitboardUtils.getPositionAsString(h8Long));
+		assertEquals(a1String, ConvertUtils.getPositionAsString(a1Long));
+		assertEquals(a8String, ConvertUtils.getPositionAsString(a8Long));
+		assertEquals(h1String, ConvertUtils.getPositionAsString(h1Long));
+		assertEquals(h8String, ConvertUtils.getPositionAsString(h8Long));
 		try {
-			BitboardUtils.getPositionAsString(11L);
+			ConvertUtils.getPositionAsString(11L);
 			fail("Exception not caught with invalid input");
 		}
 		catch (IllegalArgumentException e) {
@@ -47,17 +49,17 @@ public class BitboardUtilsTest {
 
 	@Test
 	public void test_getRank() {
-		assertEquals(BitboardUtils.RANKS[0], BitboardUtils.getRank(a1Long));
-		assertEquals(BitboardUtils.RANKS[0], BitboardUtils.getRank(h1Long));
-		assertEquals(BitboardUtils.RANKS[7], BitboardUtils.getRank(a8Long));
-		assertEquals(BitboardUtils.RANKS[7], BitboardUtils.getRank(h8Long));
+		assertEquals(BoardConstants.RANKS[0], BoardUtils.getRank(a1Long));
+		assertEquals(BoardConstants.RANKS[0], BoardUtils.getRank(h1Long));
+		assertEquals(BoardConstants.RANKS[7], BoardUtils.getRank(a8Long));
+		assertEquals(BoardConstants.RANKS[7], BoardUtils.getRank(h8Long));
 	}
 	
 	@Test
 	public void test_getFile() {
-		assertEquals(BitboardUtils.FILES[0], BitboardUtils.getFile(a1Long));
-		assertEquals(BitboardUtils.FILES[0], BitboardUtils.getFile(a8Long));
-		assertEquals(BitboardUtils.FILES[7], BitboardUtils.getFile(h1Long));
-		assertEquals(BitboardUtils.FILES[7], BitboardUtils.getFile(h8Long));
+		assertEquals(BoardConstants.FILES[0], BoardUtils.getFile(a1Long));
+		assertEquals(BoardConstants.FILES[0], BoardUtils.getFile(a8Long));
+		assertEquals(BoardConstants.FILES[7], BoardUtils.getFile(h1Long));
+		assertEquals(BoardConstants.FILES[7], BoardUtils.getFile(h8Long));
 	}
 }

@@ -15,7 +15,7 @@ import com.grapedrink.chessmap.game.ChessMapLogicEngine;
 import com.grapedrink.chessmap.gui.colors.SquareColor;
 import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
 import com.grapedrink.chessmap.logic.bitboards.PieceColor;
-import com.grapedrink.chessmap.logic.bitboards.PieceUtils;
+import com.grapedrink.chessmap.logic.utils.PieceUtils;
 import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 public class PieceDragListener extends MouseAdapter {

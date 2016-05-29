@@ -1,9 +1,8 @@
-package com.grapedrink.chessmap.logic.engine;
+package com.grapedrink.chessmap.logic.utils;
 
 import java.util.Map;
 
 import com.grapedrink.chessmap.logic.bitboards.InputValidation;
-import com.grapedrink.chessmap.logic.bitboards.PieceUtils;
 
 public class RayUtils {
 
@@ -25,8 +24,8 @@ public class RayUtils {
 		long ray = 0L;
 		long allPieces = PieceUtils.getAllPieces(pieces);
 		long iterator = position;
-		while (BoardUtils.hasNeighbor(iterator, direction)) {
-			iterator = BoardUtils.getNeighbor(iterator, direction);
+		while (BoardUtils.hasNeighboringSquare(iterator, direction)) {
+			iterator = BoardUtils.getNeighboringSquare(iterator, direction);
 			ray |= iterator;
 			if ((iterator & allPieces) == iterator) {
 				return ray;

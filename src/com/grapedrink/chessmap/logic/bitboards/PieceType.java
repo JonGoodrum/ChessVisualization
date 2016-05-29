@@ -6,14 +6,14 @@ public enum PieceType {
 	KNIGHT,
 	PAWN,
 	QUEEN,
-	ROOK;
+	ROOK,
+	NONE;
 	
-	public static PieceType get(String pieceCode) throws IllegalArgumentException {
-		InputValidation.validatePieceCode(pieceCode);
+	public static PieceType get(String pieceCode) {
 		return get(pieceCode.charAt(1));
 	}
 	
-	public static PieceType get(char code) throws IllegalArgumentException {
+	public static PieceType get(char code) {
 		switch (code) {
 		case 'B':
 			return BISHOP;
@@ -28,7 +28,7 @@ public enum PieceType {
 		case 'R':
 			return ROOK;
 		default:
-			throw new IllegalArgumentException();
+			return NONE;
 		}
 	}
 

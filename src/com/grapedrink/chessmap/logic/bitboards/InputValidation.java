@@ -28,7 +28,7 @@ public class InputValidation {
 	
 	/**
 	 * Wrapper class for throwing exceptions.  Throws an exception if
-	 * a String is not a valid position (ex: "Nf6").
+	 * a String is not a valid position (ex: "f6").
 	 * 
 	 * @param position position to validate
 	 * @throws IllegalArgumentException
@@ -39,7 +39,13 @@ public class InputValidation {
 		}
 	}
 
-
+	/**
+	 * Wrapper code for throwing exceptions.  Throws an
+	 * exception if a String is not a valid pieceCode (ex: "bK").
+	 * 
+	 * @param pieceCode piece code
+	 * @throws IllegalArgumentException
+	 */
 	public static void validatePieceCode(String pieceCode) throws IllegalArgumentException {
 		for (String savedPieceCode : PieceContainer.PIECE_CODES) {
 			if (savedPieceCode.equals(pieceCode)) {

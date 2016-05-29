@@ -1,8 +1,12 @@
-package com.grapedrink.chessmap.logic.bitboards;
+package com.grapedrink.chessmap.logic.utils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.grapedrink.chessmap.logic.bitboards.InputValidation;
+import com.grapedrink.chessmap.logic.bitboards.PieceColor;
+import com.grapedrink.chessmap.logic.bitboards.PieceType;
 
 public class PieceUtils {
 
@@ -92,8 +96,26 @@ public class PieceUtils {
 		return isBlack(position, pieces) ? 4 : 0;
 	}
 
-	public static long getFriendlyKing(long position, Map<String, Long> pieces) {
-		return isBlack(position, pieces) ? pieces.get("bK") : pieces.get("wK");
+	/**
+	 * Returns the position of the king who's team is at position.
+	 * Returns 0L if no piece is at position.
+	 * 
+	 * Throws IllegalArgumentException if the position is invalid
+	 * 
+	 * @param position
+	 * @param pieces
+	 * @return
+	 */
+	public static long getFriendlyKing(long position, Map<String, Long> pieces) throws IllegalArgumentException {
+		InputValidation.validatePosition(position);
+		switch (PieceColor.get(PieceUtils.getPieceCode(position, pieces))) {
+		case BLACK:
+			return pieces.get("bK");
+		case WHITE:
+			return pieces.get("wK");
+		default:
+			return 0L;
+		}
 	}
 	
 	/**

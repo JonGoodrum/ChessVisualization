@@ -8,13 +8,15 @@ import java.util.Map.Entry;
 import com.grapedrink.chessmap.game.ChessMapLogicEngine;
 import com.grapedrink.chessmap.logic.history.MoveHistory;
 import com.grapedrink.chessmap.logic.history.Turn;
+import com.grapedrink.chessmap.logic.utils.ConvertUtils;
+import com.grapedrink.chessmap.logic.utils.PieceUtils;
 
-public class Bitboard extends ChessMapLogicEngine {
+public class RulesEngine extends ChessMapLogicEngine {
 
 	PieceContainer pieces;
 	MoveHistory history;
 	
-	public Bitboard() {
+	public RulesEngine() {
 		pieces = new PieceContainer();
 		history = new MoveHistory();
 	}
@@ -32,8 +34,8 @@ public class Bitboard extends ChessMapLogicEngine {
 			pieces.addPieceToBoard(next.getKey(), next.getValue());
 		}
 		else {
-			long src = BitboardUtils.getPositionAsLong(next.getKey());
-			long dst = BitboardUtils.getPositionAsLong(next.getValue());
+			long src = ConvertUtils.getPositionAsLong(next.getKey());
+			long dst = ConvertUtils.getPositionAsLong(next.getValue());
 			pieces.setMove(src, dst);
 		}
 		return next;
@@ -63,24 +65,24 @@ public class Bitboard extends ChessMapLogicEngine {
 
 	@Override
 	public void setMove(String source, String destination) {
-		long src = BitboardUtils.getPositionAsLong(source);
-		long dst = BitboardUtils.getPositionAsLong(destination);
+		long src = ConvertUtils.getPositionAsLong(source);
+		long dst = ConvertUtils.getPositionAsLong(destination);
 		Turn turn = pieces.setMove(src, dst);
 		history.addMove(turn);
 	}
 
 	@Override
 	public boolean isValidMove(String source, String destination) {
-		long src = BitboardUtils.getPositionAsLong(source);
-		long dst = BitboardUtils.getPositionAsLong(destination);
+		long src = ConvertUtils.getPositionAsLong(source);
+		long dst = ConvertUtils.getPositionAsLong(destination);
 		return pieces.isValidMove(src, dst, history.mostRecent(), history.isBlacksTurn());
 	}
 
 	@Override
 	public Iterable<String> getValidMoves(String source) {
 		InputValidation.validatePosition(source);
-		long src = BitboardUtils.getPositionAsLong(source);
-		return BitboardUtils.getPositionsAsStrings(pieces.getValidMoves(src, history.mostRecent()));
+		long src = ConvertUtils.getPositionAsLong(source);
+		return ConvertUtils.getPositionsAsStrings(pieces.getValidMoves(src, history.mostRecent()));
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class Bitboard extends ChessMapLogicEngine {
 		for (int i=0; i<64; ++i) {
 			position = 1L << i;
 			if ((pieceCode = pieces.getPieceCode(position)) != null) {
-				board.put(BitboardUtils.getPositionAsString(position), pieceCode);
+				board.put(ConvertUtils.getPositionAsString(position), pieceCode);
 			}
 		}
 		return board;
@@ -122,13 +124,13 @@ public class Bitboard extends ChessMapLogicEngine {
 	@Override
 	public Collection<String> getTotalDefense(PieceColor color) {
 		long totalDefense = pieces.getTotalDefense(color);
-		return BitboardUtils.getPositionsAsStrings(totalDefense);
+		return ConvertUtils.getPositionsAsStrings(totalDefense);
 	}
 
 	@Override
 	public PieceColor getWinner() {
 		long availableMoves = 0L;
-		Iterable<Long> blackPieces = BitboardUtils.getPositionsAsLongs(pieces.getBlackPieces());
+		Iterable<Long> blackPieces = ConvertUtils.getPositionsAsLongs(pieces.getBlackPieces());
 		for (long piece : blackPieces) {
 			if ((availableMoves = pieces.getValidMoves(piece, null)) != 0L) {
 				break;
@@ -138,7 +140,7 @@ public class Bitboard extends ChessMapLogicEngine {
 			return PieceColor.WHITE;
 		}
 		
-		Iterable<Long> whitePieces = BitboardUtils.getPositionsAsLongs(pieces.getWhitePieces());
+		Iterable<Long> whitePieces = ConvertUtils.getPositionsAsLongs(pieces.getWhitePieces());
 		for (long piece : whitePieces) {
 			if ((availableMoves = pieces.getValidMoves(piece, null)) != 0L) {
 				break;

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.swing.JButton;
 
-import com.grapedrink.chessmap.logic.bitboards.PieceUtils;
+import com.grapedrink.chessmap.logic.utils.PieceUtils;
 import com.grapedrink.chessmap.ui.factory.GUIReferences;
 
 @SuppressWarnings("serial")
