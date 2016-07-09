@@ -32,6 +32,7 @@ public class NewGameButton extends JButton {
             guirefs.getExtraPiecesPanel().setActivePanel(false);
             guirefs.getCheckBoxPanel().uncheckAll();
 			guirefs.enableNextPrevMoveButtons();
+			guirefs.highlightActivePlayer();
 		}
 	}
 }

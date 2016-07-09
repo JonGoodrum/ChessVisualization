@@ -9,6 +9,7 @@ import com.grapedrink.chessmap.gui.board.MasterBoardPanel;
 import com.grapedrink.chessmap.gui.controlpanel.ControlPanel;
 import com.grapedrink.chessmap.gui.icons.IconHelper;
 import com.grapedrink.chessmap.gui.mainwindow.MainWindow;
+import com.grapedrink.chessmap.logic.bitboards.PieceColor;
 import com.grapedrink.chessmap.ui.io.CheckBoxPanel;
 import com.grapedrink.chessmap.ui.io.FreePlayCheckBox;
 import com.grapedrink.chessmap.ui.io.NewGameButton;
@@ -116,6 +117,10 @@ public class GUIReferences {
 
 	public void resetColors() {
 		this.chessBoardPanel.resetColors();
+	}
+
+	public void highlightActivePlayer() {
+		extraPiecesPanel.setActivePlayer(chessMapLogicEngine.getActivePlayer());
 	}
 
 }

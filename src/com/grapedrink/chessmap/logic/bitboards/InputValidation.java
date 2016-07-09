@@ -6,16 +6,16 @@ public class InputValidation {
 	
 	
 	private static boolean isPosition(long value) {
-		return value == 0 ? false : (value & (value-1)) == 0;
+		return (value & (value-1)) == 0;
 	}
 	
 	private static boolean isPosition(String str) {
-		return !(str == null || str.length() != 2 || str.charAt(0) < 'a' || str.charAt(0) > 'h' || str.charAt(1) < '1' || str.charAt(1) > '8');
+		return !(str.length() != 2 || str.charAt(0) < 'a' || str.charAt(0) > 'h' || str.charAt(1) < '1' || str.charAt(1) > '8');
 	}
 	
 	/**
 	 * Wrapper class for throwing exceptions.  Throws an exception if
-	 * a long is not a valid position (ex: 0b00010100L).
+	 * a long represents more than one position (ex: 0b00010100L).
 	 * 
 	 * @param position position to validate
 	 * @throws IllegalArgumentException
@@ -28,7 +28,8 @@ public class InputValidation {
 	
 	/**
 	 * Wrapper class for throwing exceptions.  Throws an exception if
-	 * a String is not a valid position (ex: "f6").
+	 * a String is not a valid position (ex: "a" or "foo").
+	 * Null is considered a valid position.
 	 * 
 	 * @param position position to validate
 	 * @throws IllegalArgumentException

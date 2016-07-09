@@ -98,12 +98,12 @@ public class PieceDragListener extends MouseAdapter {
     		logic().setMove(source, destination);
     		dropDraggedIcon(e);
     		guirefs.getChessBoardPanel().setBoard(logic().getBoard());
+    		guirefs.highlightActivePlayer();
     	}
     	else {
     		resetDraggedIcon(e);
     	}
     	if (logic().getWinner() != null) {
-    		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Mate");
     		JOptionPane.showMessageDialog(null, String.format("Checkmate. %s wins", logic().getWinner()));
     	}
     }

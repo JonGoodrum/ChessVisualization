@@ -37,6 +37,7 @@ public class NextMoveButton extends JButton {
 				guirefs.getChessBoardPanel().movePiece(nextMove.getKey(), nextMove.getValue());
 			}
 	    	guirefs.paintSquares();
+	    	guirefs.highlightActivePlayer();
 			guirefs.enableNextPrevMoveButtons();
 		}
 	}

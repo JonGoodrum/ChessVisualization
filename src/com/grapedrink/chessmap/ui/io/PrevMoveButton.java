@@ -31,6 +31,7 @@ public class PrevMoveButton extends JButton {
 			guirefs.getChessMapLogicEngine().getPrevMove();
 			guirefs.getChessBoardPanel().setBoard(guirefs.getChessMapLogicEngine().getBoard());
 			guirefs.enableNextPrevMoveButtons();
+			guirefs.highlightActivePlayer();
 	    	guirefs.paintSquares();
 		}
 	}

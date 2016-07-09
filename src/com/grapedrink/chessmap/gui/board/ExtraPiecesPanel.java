@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import com.grapedrink.chessmap.gui.controlpanel.GuiConstants;
 import com.grapedrink.chessmap.gui.icons.IconHelper;
+import com.grapedrink.chessmap.logic.bitboards.PieceColor;
 import com.grapedrink.chessmap.ui.factory.GUIReferences;
 import com.grapedrink.chessmap.ui.io.PieceDragListener;
 
@@ -19,6 +20,8 @@ public class ExtraPiecesPanel extends JPanel {
 	private GUIReferences guirefs;
 	private JPanel pieceSelectorLayer;
 	private JPanel playerTurnLayer;
+	private JPanel blackIndicator;
+	private JPanel whiteIndicator;
 	
 	public ExtraPiecesPanel(GUIReferences userInterfaceFactory) {
 		this.guirefs = userInterfaceFactory;
@@ -52,13 +55,15 @@ public class ExtraPiecesPanel extends JPanel {
 	}
 	
 	private void createPlayerTurnLayer() {
+		blackIndicator = getPlayerIndicator("bK", 2);
+		whiteIndicator = getPlayerIndicator("wK", 2);
 		playerTurnLayer = getEmptyGrid(1);
 		playerTurnLayer.add(getGridFiller(2));
 		playerTurnLayer.add(getGridFiller(2));
-		playerTurnLayer.add(getPlayerIndicator("bK", 2));
+		playerTurnLayer.add(blackIndicator);
 		playerTurnLayer.add(getGridFiller(2));
 		playerTurnLayer.add(getGridFiller(2));
-		playerTurnLayer.add(getPlayerIndicator("wK", 2));
+		playerTurnLayer.add(whiteIndicator);
 		playerTurnLayer.add(getGridFiller(2));
 		playerTurnLayer.add(getGridFiller(2));
 		super.add(playerTurnLayer);
@@ -88,5 +93,20 @@ public class ExtraPiecesPanel extends JPanel {
 
 	public void flipActivePanel() {
 		setActivePanel(pieceSelectorLayer.isVisible() ? false : true);
+	}
+	
+	public void setActivePlayer(PieceColor color) {
+		switch (color) {
+		case BLACK:
+			blackIndicator.setBackground(Color.YELLOW);
+			whiteIndicator.setBackground(null);
+			break;
+		case WHITE:
+			blackIndicator.setBackground(null);
+			whiteIndicator.setBackground(Color.YELLOW);
+			break;
+		default:
+			break;
+		}
 	}
 }

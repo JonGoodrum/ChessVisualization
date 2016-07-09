@@ -1,6 +1,5 @@
 package com.grapedrink.chessmap.gui.board;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.grapedrink.chessmap.logic.history.Turn;
 import com.grapedrink.chessmap.logic.utils.BoardConstants;
-import com.grapedrink.chessmap.logic.utils.BoardUtils;
 import com.grapedrink.chessmap.logic.utils.ConvertUtils;
 import com.grapedrink.chessmap.logic.utils.DefenseUtils;
 import com.grapedrink.chessmap.logic.utils.GameUtils;
@@ -239,12 +238,16 @@ public class PieceContainer {
         turn.setH8(h8CastleAllowed);
 	}
 	
+	/**
+	 * Returns whether or not the 
+	 * @return
+	 */
 	public boolean isPromotion() {
 		return isPromotion;
 	}
 	
 	private void setPromotion(long dst) {
-		String pieceCode = getPieceCode(dst);
+		String pieceCode = PieceUtils.getPieceCode(dst, pieces);
 		PieceColor player = PieceColor.get(pieceCode);
 		boolean isPawn = PieceType.PAWN.equals(PieceType.get(pieceCode));
 		boolean isLastRank = PieceColor.BLACK.equals(player) ? ((dst & BoardConstants.RANKS[0]) == dst) : ((dst & BoardConstants.RANKS[7]) == dst);
@@ -264,24 +267,6 @@ public class PieceContainer {
 		}
 		isPromotion = false;
 	}
-	
-	public PieceColor getPieceColor(long position) throws IllegalArgumentException {
-		return PieceColor.get(getPieceCode(position).charAt(0));
-	}
-	
-	public PieceType getPieceType(long position) throws IllegalArgumentException {
-		return PieceType.get(getPieceCode(position).charAt(1));
-	}
-	
-	public String getPieceCode(long position) throws IllegalArgumentException {
-		InputValidation.validatePosition(position);
-		for (String pieceCode : pieces.keySet()) {
-			if ((pieces.get(pieceCode) & position) == position) {
-				return pieceCode;
-			}
-		}
-		return null;
-	}
 
 	public Turn addPieceToBoard(String pieceCode, String position) {
 		Turn turn = new Turn(pieceCode, position);
@@ -297,6 +282,7 @@ public class PieceContainer {
 		pieces.put(pieceCode, positions);
 	}
 	
+	// TODO : MFD
 	public boolean isValidMove(long src, long dst, Turn mostRecent, boolean isBlacksTurn) {
 	    long activePlayersPieces = isBlacksTurn ? getBlackPieces() : getWhitePieces();
 	    if ((src & activePlayersPieces) == src) {
@@ -305,6 +291,7 @@ public class PieceContainer {
 	    return false;
 	}
 	
+	// TODO : MFD
 	private long getAvailableCastles(long position) {
 		long b1 = BoardConstants.RANKS[0] & BoardConstants.FILES[1];
 		long c1 = BoardConstants.RANKS[0] & BoardConstants.FILES[2];
@@ -321,44 +308,46 @@ public class PieceContainer {
 		long moves = 0L;
 		
 		if (!PieceUtils.isBlack(position, pieces) && isEmpty(b1|c1|d1) && a1CastleAllowed) {
-			if (!isUnderEnemyAttack(c1, PieceColor.BLACK) && !isUnderEnemyAttack(d1, PieceColor.BLACK) && !isUnderEnemyAttack(e1, PieceColor.BLACK)) {
+            if (!DefenseUtils.isDefendedByColor(c1|d1|e1, pieces, PieceColor.WHITE)) {
 				moves |= c1;
 			}
 		}
 		if (!PieceUtils.isBlack(position, pieces) && isEmpty(f1|g1) && h1CastleAllowed) {
-			if (!isUnderEnemyAttack(e1, PieceColor.BLACK) && !isUnderEnemyAttack(f1, PieceColor.BLACK) && !isUnderEnemyAttack(g1, PieceColor.BLACK)) {
+			if (!DefenseUtils.isDefendedByColor(e1|f1|g1, pieces, PieceColor.WHITE)) {
 				moves |= g1;
 			}
 		}
 		if (PieceUtils.isBlack(position, pieces)  && isEmpty(b8|c8|d8) && a8CastleAllowed) {
-			if (!isUnderEnemyAttack(c8, PieceColor.WHITE) && !isUnderEnemyAttack(d8, PieceColor.WHITE) && !isUnderEnemyAttack(e8, PieceColor.WHITE)) {
+			if (!DefenseUtils.isDefendedByColor(c8|d8|e8, pieces, PieceColor.WHITE)) {
 				moves |= c8;
 			}
 		}
 		if (PieceUtils.isBlack(position, pieces)  && isEmpty(f8|g8) && h8CastleAllowed) {
-			if (!isUnderEnemyAttack(e8, PieceColor.WHITE) && !isUnderEnemyAttack(f8, PieceColor.WHITE) && !isUnderEnemyAttack(g8, PieceColor.WHITE)) {
+			if (!DefenseUtils.isDefendedByColor(e8|f8|g8, pieces, PieceColor.WHITE)) {
 				moves |= g8;
 			}
 		}
 		return moves;
 	}
 	
-	private boolean isUnderEnemyAttack(long position, PieceColor attackingColor) {
-		InputValidation.validatePosition(position);
-		return position == (position & DefenseUtils.getDefendedSquaresForColor(pieces, attackingColor));
-	}
-	
+	/**
+	 * Determines whether the squares represented by a long are empty or not
+	 * 
+	 * @param boardSquares
+	 * @return
+	 */
 	private boolean isEmpty(long boardSquares) {
 		return (getAllPieces() & boardSquares) == 0L; 
 	}
 	
+	// TODO : MFD
 	public long getValidMoves(long src, Turn mostRecent) {
-		String pieceCode = getPieceCode(src);
+		String pieceCode = PieceUtils.getPieceCode(src, pieces);
 		if (pieceCode != null) {
-			PieceType type = getPieceType(src);
+			PieceType type = PieceUtils.getPieceType(src, pieces);
 			if (PieceType.KING.equals(type)) {
 				if (GameUtils.isInCheck(src, pieces)) {
-					return BoardUtils.getAdjacentSquares(src) & ~PieceUtils.getFriendlyPieces(src, pieces) & ~DefenseUtils.getDefendedSquaresEnemyTeam(src, pieces);
+					return MoveUtils.getValidMoves(src, pieces, mostRecent);
 				}
 				return MoveUtils.getValidMoves(src, pieces, mostRecent) | getAvailableCastles(src);
 			}
@@ -371,8 +360,22 @@ public class PieceContainer {
 		}
 		return 0L;
 	}
+	
+	/**
+	 * Returns a deep copy of the Map<String, Long>
+	 * inside here which contains pieces.
+	 * 
+	 * @return pieces
+	 */
+	public Map<String, Long> getPieces() {
+		Map<String, Long> deepCopy = new HashMap<>();
+		for (String key : pieces.keySet()) {
+			deepCopy.put(key, pieces.get(key));
+		}
+		return deepCopy;
+	}
 
-	public long getTotalDefense(PieceColor color) {
-		return DefenseUtils.getDefendedSquaresForColor(pieces, color);
+	public String getPieceCodeAtPosition(long position) {
+		return PieceUtils.getPieceCode(position, pieces);
 	}
 }

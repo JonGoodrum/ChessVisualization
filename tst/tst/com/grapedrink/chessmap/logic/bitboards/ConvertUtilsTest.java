@@ -1,15 +1,14 @@
 package tst.com.grapedrink.chessmap.logic.bitboards;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.grapedrink.chessmap.logic.utils.BoardConstants;
-import com.grapedrink.chessmap.logic.utils.BoardUtils;
 import com.grapedrink.chessmap.logic.utils.ConvertUtils;
 
-public class BitboardUtilsTest {
-	
+public class ConvertUtilsTest {
+
 	private static final long a1Long = 0x0000000000000080L;
 	private static final long a8Long = 0x8000000000000000L;
 	private static final long h1Long = 0x0000000000000001L;
@@ -45,21 +44,5 @@ public class BitboardUtilsTest {
 		}
 		catch (IllegalArgumentException e) {
 		}
-	}
-
-	@Test
-	public void test_getRank() {
-		assertEquals(BoardConstants.RANKS[0], BoardUtils.getRank(a1Long));
-		assertEquals(BoardConstants.RANKS[0], BoardUtils.getRank(h1Long));
-		assertEquals(BoardConstants.RANKS[7], BoardUtils.getRank(a8Long));
-		assertEquals(BoardConstants.RANKS[7], BoardUtils.getRank(h8Long));
-	}
-	
-	@Test
-	public void test_getFile() {
-		assertEquals(BoardConstants.FILES[0], BoardUtils.getFile(a1Long));
-		assertEquals(BoardConstants.FILES[0], BoardUtils.getFile(a8Long));
-		assertEquals(BoardConstants.FILES[7], BoardUtils.getFile(h1Long));
-		assertEquals(BoardConstants.FILES[7], BoardUtils.getFile(h8Long));
 	}
 }

@@ -48,6 +48,13 @@ public class PieceUtils {
 		return getPieceType(pieceCode);
 	}
 	
+	/**
+	 * Returns the PieceCode at position, or null if no piece is present.
+	 * 
+	 * @param position
+	 * @param pieces
+	 * @return
+	 */
 	public static String getPieceCode(long position, Map<String, Long> pieces) {
 		for (String pieceCode : pieces.keySet()) {
 			if ((pieces.get(pieceCode) & position) == position) {

@@ -3,7 +3,6 @@ package com.grapedrink.chessmap.logic.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.grapedrink.chessmap.logic.bitboards.PieceColor;
 import com.grapedrink.chessmap.logic.bitboards.PieceType;
 import com.grapedrink.chessmap.logic.history.Turn;
 
@@ -18,69 +17,24 @@ public class MoveUtils {
 		
 		long moves;
 		if (PieceType.KING.equals(type)) {
-			return getKingMoves(position, pieces);
+			return getValidKingMoves(position, pieces);
 		}
 		else if (PieceType.PAWN.equals(type)) {
-			moves = (getPawnMoves(position, pieces) | getEnPassant(position, pieces, mostRecent));
+			moves = (getPawnMovesWithoutEnPassant(position, pieces) | getEnPassant(position, pieces, mostRecent));
 		}
 		else {
 			moves = DefenseUtils.getDefendedSquares(position, pieces) & ~myPieces;
 		}
 		long friendlyKing = PieceUtils.getFriendlyKing(position, pieces);
-		System.out.println("isPinned: " + isPinned(position, pieces));
-		return isPinned(position, pieces) ? moves & BoardUtils.getConnectingRay(position, friendlyKing) : moves;
+		return GameUtils.isPinned(position, pieces) ? moves & BoardUtils.getConnectingRay(position, friendlyKing) : moves;
 	}
 	
-	private static long getKingMoves(long position, Map<String, Long> pieces) {
-		long enemyKing = PieceUtils.getEnemyKing(position, pieces);
-		long nonAttackedSquares = ~(DefenseUtils.getDefendedSquares(enemyKing, pieces));
-		return BoardUtils.getAdjacentSquares(position) & ~PieceUtils.getFriendlyPieces(position, pieces) & nonAttackedSquares;
+	private static long getValidKingMoves(long position, Map<String, Long> pieces) {
+		return BoardUtils.getAdjacentSquares(position)
+				& ~DefenseUtils.getDefendedSquaresEnemyTeam(position, pieces)
+		        & ~PieceUtils.getFriendlyPieces(position, pieces);
 	}
-	
-	public static boolean isPinned(long position, Map<String, Long> pieces) {
-		long myKing = PieceUtils.getFriendlyKing(position, pieces);
-		
-		boolean pieceIsKing = position == myKing;
-		boolean notInLineWithKing = (BoardUtils.getRaystar(position) & myKing) == 0L;
-		if (pieceIsKing || notInLineWithKing) {
-			return false;
-		}
-		
-		long iterator = myKing;
-		long allPieces = PieceUtils.getAllPieces(pieces);
-		int direction = getConnectingDirection(myKing, position);
-		while ((iterator = BoardUtils.getNeighboringSquare(iterator, direction)) != position) {
-			if ((iterator & allPieces) == iterator) {
-				return false;
-			}
-		}
-		
-		PieceColor enemyColor = PieceUtils.isBlack(position, pieces) ? PieceColor.WHITE : PieceColor.BLACK;
-		long attackersThatCanPin = PieceUtils.getSlidingPieces(pieces, enemyColor);
-		while (BoardUtils.hasNeighboringSquare(iterator, direction)) {
-			iterator = BoardUtils.getNeighboringSquare(iterator, direction);
-			if ((iterator & attackersThatCanPin) == iterator) {
-				return (DefenseUtils.getDefendedSquares(iterator, pieces) & position) != 0L;
-			}
-		}
-		System.out.println("exit 4");
-		return false;
-	}
-	
-	/* assumes pieces are connected */
-	private static int getConnectingDirection(long src, long dst) {
-		if ((BoardUtils.getRank(src) & dst) == dst) {
-			return src > dst ? 2 : 6;
-		}
-		else if ((BoardUtils.getFile(src) & dst) == dst) {
-			return src < dst ? 0 : 4;
-		}
-		else if ((BoardUtils.getDiagonal(src) & dst) == dst) {
-			return src < dst ? 1 : 5;
-		}
-		return src > dst ? 3 : 7;
-	}
-	
+
 	private static long getEnPassant(long position, Map<String, Long> pieces, Turn mostRecent) {
 		if (mostRecent == null || PieceUtils.isPieceCode(mostRecent.getSrc())) {
 			return 0L;
@@ -101,9 +55,8 @@ public class MoveUtils {
 		}
 		return 0L;
 	}
-	
-	/* Returns all pawn moves, not including en passant */
-	private static long getPawnMoves(long position, Map<String, Long> pieces) {
+
+	private static long getPawnMovesWithoutEnPassant(long position, Map<String, Long> pieces) {
 		long allPieces = PieceUtils.getAllPieces(pieces);
 		int direction = PieceUtils.getPawnDirection(position, pieces);
 		

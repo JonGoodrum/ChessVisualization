@@ -37,7 +37,14 @@ public class DefenseUtils {
 	 * @return
 	 */
 	public static long getDefendedSquaresEnemyTeam(long position, Map<String, Long> pieces){
-		return getDefendedSquaresForColor(pieces, PieceUtils.getPieceColor(position, pieces));
+		switch (PieceUtils.getPieceColor(position, pieces)) {
+		case BLACK:
+			return getDefendedSquaresForColor(pieces, PieceColor.WHITE);
+		case WHITE:
+			return getDefendedSquaresForColor(pieces, PieceColor.BLACK);
+		default:
+			return 0L;
+		}
 	}
 	
 	
@@ -71,7 +78,7 @@ public class DefenseUtils {
 		case PAWN:
 			return getPawnDefense(position, PieceUtils.getPawnDirection(position, pieces));
 		case QUEEN:
-			return getBishopDefense(position, allPieces) | getRookDefense(position, allPieces);
+			return getQueenDefense(position, allPieces);
 		case ROOK:
 			return getRookDefense(position, allPieces);
 		default:
@@ -88,10 +95,22 @@ public class DefenseUtils {
 	 * @return
 	 */
 	public static long getBishopDefense(long position, long allPieces) {
-		return getRayDefense(position, allPieces, 1)
-				| getRayDefense(position, allPieces, 3)
-				| getRayDefense(position, allPieces, 5)
-				| getRayDefense(position, allPieces, 7);
+		return getDefendedRay(position, allPieces, 1)
+				| getDefendedRay(position, allPieces, 3)
+				| getDefendedRay(position, allPieces, 5)
+				| getDefendedRay(position, allPieces, 7);
+	}
+	
+	/**
+	 * Returns all the squares potentially defended by a queen
+	 * at this position.  This treats all pieces as capturable.
+	 * 
+	 * @param position
+	 * @param allPieces
+	 * @return
+	 */
+	public static long getQueenDefense(long position, long allPieces) {
+		return getRookDefense(position, allPieces) | getBishopDefense(position, allPieces);
 	}
 	
 	/**
@@ -103,10 +122,10 @@ public class DefenseUtils {
 	 * @return
 	 */
 	public static long getRookDefense(long position, long allPieces) {
-		return getRayDefense(position, allPieces, 0)
-				| getRayDefense(position, allPieces, 2)
-				| getRayDefense(position, allPieces, 4)
-				| getRayDefense(position, allPieces, 6);
+		return getDefendedRay(position, allPieces, 0)
+				| getDefendedRay(position, allPieces, 2)
+				| getDefendedRay(position, allPieces, 4)
+				| getDefendedRay(position, allPieces, 6);
 	}
 	
 	/**
@@ -154,17 +173,17 @@ public class DefenseUtils {
 	 * @param allPieces
 	 * @return
 	 */
-	private static long getRayDefense(long position, long allPieces, int direction) {
-		long moveset = 0L;
+	private static long getDefendedRay(long position, long allPieces, int direction) {
+		long ray = 0L;
 		long iterator = position;
 		while (BoardUtils.hasNeighboringSquare(iterator, direction)) {
 			iterator = BoardUtils.getNeighboringSquare(iterator, direction);
-			moveset |= iterator;
+			ray |= iterator;
 			if ((iterator & allPieces) == iterator) {
-				return moveset;
+				return ray;
 			}
 		}
-		return 0L;
+		return ray;
 	}
 
 	/**
@@ -177,12 +196,25 @@ public class DefenseUtils {
 	public static long getDefendedSquaresForColor(Map<String, Long> pieces, PieceColor color) {
 		switch (color) {
 		case BLACK:
-			return getDefendedSquaresFriendlyTeam(pieces.get("wK"), pieces);
-		case WHITE:
 			return getDefendedSquaresFriendlyTeam(pieces.get("bK"), pieces);
+		case WHITE:
+			return getDefendedSquaresFriendlyTeam(pieces.get("wK"), pieces);
 		default:
 			return 0L;
 		}
+	}
+
+	/**
+	 * Returns true if all the squares represented
+	 * by the long are defended by color
+	 * 
+	 * @param squares
+	 * @param pieces
+	 * @param color
+	 * @return
+	 */
+	public static boolean isDefendedByColor(long squares, Map<String, Long> pieces, PieceColor color) {
+		return squares == (squares & getDefendedSquaresForColor(pieces, color));
 	}
 
 }

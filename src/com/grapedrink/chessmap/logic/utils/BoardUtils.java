@@ -212,7 +212,10 @@ public class BoardUtils {
 
 
 	/**
-	 * Returns the ray intersecting two squares.
+	 * Returns the full ray intersecting two squares.
+	 * This ray is not limited; it extends from one
+	 * border to another.
+	 * 
 	 * Returns 0L if no ray intersects these squares. 
 	 * 
 	 * @param a
